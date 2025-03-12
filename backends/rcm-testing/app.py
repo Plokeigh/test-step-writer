@@ -67,13 +67,17 @@ def copy_and_customize_template(control_id, fiscal_year, testing_period, rcm_dat
     # Update metadata cells in the Summary sheet
     # Assuming these cells exist in the template - adjust cell references as needed based on your template structure
     try:
+        # Update the merged cell B2 with Control ID and Short Name
+        short_name = rcm_data.get('short_name', '')
+        summary_sheet['B2'] = f"{control_id}-{short_name}"
+        
         # Look for Control ID cell and update
         found_control_id_cell = False
         for row in range(1, 10):  # Search in the first 10 rows
             for cell in summary_sheet[row]:
                 if cell.value and "Control ID" in str(cell.value):
-                    # Update the cell to the right
-                    next_cell = summary_sheet.cell(row=cell.row, column=cell.column + 1)
+                    # Update the cell to the right (column C instead of B)
+                    next_cell = summary_sheet.cell(row=cell.row, column=cell.column + 2)
                     next_cell.value = control_id
                     found_control_id_cell = True
                     break
@@ -81,16 +85,16 @@ def copy_and_customize_template(control_id, fiscal_year, testing_period, rcm_dat
                 break
         
         if not found_control_id_cell:
-            # If not found, use default positions
-            summary_sheet['B3'] = control_id
-            
+            # If not found, use default positions (column C instead of B)
+            summary_sheet['C3'] = control_id
+        
         # Look for Fiscal Year cell and update
         found_fiscal_year_cell = False
         for row in range(1, 10):
             for cell in summary_sheet[row]:
                 if cell.value and "Fiscal Year" in str(cell.value):
-                    # Update the cell to the right
-                    next_cell = summary_sheet.cell(row=cell.row, column=cell.column + 1)
+                    # Update the cell to the right (column C instead of B)
+                    next_cell = summary_sheet.cell(row=cell.row, column=cell.column + 2)
                     next_cell.value = fiscal_year
                     found_fiscal_year_cell = True
                     break
@@ -98,16 +102,16 @@ def copy_and_customize_template(control_id, fiscal_year, testing_period, rcm_dat
                 break
                 
         if not found_fiscal_year_cell:
-            # If not found, use default positions
-            summary_sheet['B4'] = fiscal_year
+            # If not found, use default positions (column C instead of B)
+            summary_sheet['C4'] = fiscal_year
             
         # Look for Testing Period cell and update
         found_testing_period_cell = False
         for row in range(1, 10):
             for cell in summary_sheet[row]:
                 if cell.value and "Testing Period" in str(cell.value):
-                    # Update the cell to the right
-                    next_cell = summary_sheet.cell(row=cell.row, column=cell.column + 1)
+                    # Update the cell to the right (column C instead of B)
+                    next_cell = summary_sheet.cell(row=cell.row, column=cell.column + 2)
                     next_cell.value = testing_period
                     found_testing_period_cell = True
                     break
@@ -115,8 +119,11 @@ def copy_and_customize_template(control_id, fiscal_year, testing_period, rcm_dat
                 break
                 
         if not found_testing_period_cell:
-            # If not found, use default positions
-            summary_sheet['B5'] = testing_period
+            # If not found, use default positions (column C instead of B)
+            summary_sheet['C5'] = testing_period
+        
+        # Add business cycle to row 3 (replacing control ID)
+        summary_sheet['C3'] = rcm_data.get('business_cycle', '')
         
         # Update RCM data cells (Business Cycle, Sub Process, Control Description, Application)
         # First look for these headers and update cells below them
@@ -198,31 +205,9 @@ def copy_and_customize_template(control_id, fiscal_year, testing_period, rcm_dat
             if rcm_section_found:
                 break
         
-        # If still not found, use default positions - only if necessary
-        if not all(found_headers.values()) and not rcm_section_found:
-            # Add RCM information header if not found
-            if not rcm_section_found:
-                summary_sheet['A7'] = "RCM Information"
-                summary_sheet['A7'].font = Font(size=12, bold=True)
-                
-                # Add headers
-                headers = [
-                    "Business Cycle", "Sub Process", "Control Description", "Application"
-                ]
-                
-                for i, header in enumerate(headers):
-                    cell = summary_sheet.cell(row=9, column=i+1)
-                    cell.value = header
-                    cell.font = Font(bold=True)
-                    cell.fill = PatternFill(start_color="DDEBF7", end_color="DDEBF7", fill_type="solid")
-                
-                # Add RCM data
-                row = 10
-                summary_sheet.cell(row=row, column=1).value = rcm_data.get('business_cycle', '')
-                summary_sheet.cell(row=row, column=2).value = rcm_data.get('sub_process', '')
-                summary_sheet.cell(row=row, column=3).value = rcm_data.get('control_description', '')
-                summary_sheet.cell(row=row, column=4).value = rcm_data.get('application', '')
-    
+        # Remove the code that adds default headers in row 9
+        # The default section is completely removed as it's not needed
+
     except Exception as e:
         logger.error(f"Error customizing template: {str(e)}")
         # Continue despite errors in template customization
@@ -299,7 +284,8 @@ def generate_testing():
                     'business_cycle': ws.cell(row=row, column=4).value,  # Column D
                     'sub_process': ws.cell(row=row, column=5).value,     # Column E
                     'control_description': ws.cell(row=row, column=8).value,  # Column H
-                    'application': ws.cell(row=row, column=6).value      # Column F
+                    'application': ws.cell(row=row, column=6).value,      # Column F
+                    'short_name': ws.cell(row=row, column=7).value       # Column G
                 }
                 
                 # Create folder for this control ID
