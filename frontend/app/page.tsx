@@ -18,6 +18,13 @@ export default function Home() {
       path: '/my-upload-app',
       icon: '📤',
       color: 'from-emerald-500 to-emerald-600'
+    },
+    {
+      name: 'RCM Testing Generator',
+      description: 'Generate testing templates from RCM files. Creates folders and Excel templates for each control ID.',
+      path: '/rcm-testing',
+      icon: '📊',
+      color: 'from-purple-500 to-purple-600'
     }
   ];
 

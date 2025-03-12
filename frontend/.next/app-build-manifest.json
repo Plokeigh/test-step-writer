@@ -11,15 +11,10 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/my-upload-app/page": [
+    "/rcm-testing/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/my-upload-app/page.js"
-    ],
-    "/rcm-builder/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/rcm-builder/page.js"
+      "static/chunks/app/rcm-testing/page.js"
     ]
   }
 }

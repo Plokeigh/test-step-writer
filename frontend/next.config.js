@@ -12,6 +12,10 @@ const nextConfig = {
       },
     ]
   },
+  // Custom webpack configuration if needed
+  webpack: (config) => {
+    return config;
+  },
 }
 
 module.exports = nextConfig 
