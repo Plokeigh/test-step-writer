@@ -1,0 +1,5 @@
+{
+  "/page": "app/page.js",
+  "/my-upload-app/page": "app/my-upload-app/page.js",
+  "/rcm-builder/page": "app/rcm-builder/page.js"
+}
