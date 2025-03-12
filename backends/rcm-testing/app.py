@@ -71,94 +71,24 @@ def copy_and_customize_template(control_id, fiscal_year, testing_period, rcm_dat
         short_name = rcm_data.get('short_name', '')
         summary_sheet['B2'] = f"{control_id}-{short_name}"
         
-        # Look for Control ID cell and update
-        found_control_id_cell = False
-        for row in range(1, 10):  # Search in the first 10 rows
-            for cell in summary_sheet[row]:
-                if cell.value and "Control ID" in str(cell.value):
-                    # Update the cell to the right (column C instead of B)
-                    next_cell = summary_sheet.cell(row=cell.row, column=cell.column + 2)
-                    next_cell.value = control_id
-                    found_control_id_cell = True
-                    break
-            if found_control_id_cell:
-                break
+        # Direct cell assignments for specific metadata - this ensures explicit placement
+        summary_sheet['C3'] = rcm_data.get('business_cycle', '')  # Business Cycle in C3
+        summary_sheet['C4'] = rcm_data.get('sub_process', '')     # Sub Process in C4
+        summary_sheet['C5'] = rcm_data.get('control_description', '')  # Control Description in C5
+        summary_sheet['C7'] = rcm_data.get('application', '')     # Application in C7
         
-        if not found_control_id_cell:
-            # If not found, use default positions (column C instead of B)
-            summary_sheet['C3'] = control_id
-        
-        # Look for Fiscal Year cell and update
-        found_fiscal_year_cell = False
-        for row in range(1, 10):
-            for cell in summary_sheet[row]:
-                if cell.value and "Fiscal Year" in str(cell.value):
-                    # Update the cell to the right (column C instead of B)
-                    next_cell = summary_sheet.cell(row=cell.row, column=cell.column + 2)
-                    next_cell.value = fiscal_year
-                    found_fiscal_year_cell = True
-                    break
-            if found_fiscal_year_cell:
-                break
-                
-        if not found_fiscal_year_cell:
-            # If not found, use default positions (column C instead of B)
-            summary_sheet['C4'] = fiscal_year
-            
-        # Look for Testing Period cell and update
-        found_testing_period_cell = False
-        for row in range(1, 10):
-            for cell in summary_sheet[row]:
-                if cell.value and "Testing Period" in str(cell.value):
-                    # Update the cell to the right (column C instead of B)
-                    next_cell = summary_sheet.cell(row=cell.row, column=cell.column + 2)
-                    next_cell.value = testing_period
-                    found_testing_period_cell = True
-                    break
-            if found_testing_period_cell:
-                break
-                
-        if not found_testing_period_cell:
-            # If not found, use default positions (column C instead of B)
-            summary_sheet['C5'] = testing_period
-        
-        # Add business cycle to row 3 (replacing control ID)
-        summary_sheet['C3'] = rcm_data.get('business_cycle', '')
-        
-        # Update RCM data cells (Business Cycle, Sub Process, Control Description, Application)
-        # First look for these headers and update cells below them
-        found_headers = {
-            'business_cycle': False,
-            'sub_process': False,
-            'control_description': False,
-            'application': False
+        # Update RCM data cells in the table section if it exists
+        # We'll track sections we've already updated to avoid duplicate entries
+        updated_sections = {
+            'business_cycle': True,     # Already updated in C3
+            'sub_process': True,        # Already updated in C4
+            'control_description': True, # Already updated in C5
+            'application': True         # Already updated in C7
         }
         
-        # Check for a table with headers
-        for row in range(1, 20):  # Search in first 20 rows
-            for col in range(1, 10):  # Search in first 10 columns
-                cell_value = summary_sheet.cell(row=row, column=col).value
-                if not cell_value:
-                    continue
-                    
-                cell_value_str = str(cell_value).lower()
-                
-                if "business cycle" in cell_value_str:
-                    summary_sheet.cell(row=row+1, column=col).value = rcm_data.get('business_cycle', '')
-                    found_headers['business_cycle'] = True
-                elif "sub process" in cell_value_str:
-                    summary_sheet.cell(row=row+1, column=col).value = rcm_data.get('sub_process', '')
-                    found_headers['sub_process'] = True
-                elif "control description" in cell_value_str:
-                    summary_sheet.cell(row=row+1, column=col).value = rcm_data.get('control_description', '')
-                    found_headers['control_description'] = True
-                elif "application" in cell_value_str:
-                    summary_sheet.cell(row=row+1, column=col).value = rcm_data.get('application', '')
-                    found_headers['application'] = True
-        
-        # If headers not found, look for a specific table section
+        # Look for an RCM Information section table
         rcm_section_found = False
-        for row in range(1, 20):
+        for row in range(10, 30):  # Start searching from row 10 to avoid interfering with our fixed assignments
             for cell in summary_sheet[row]:
                 if cell.value and "RCM Information" in str(cell.value):
                     # Found the RCM Information section
@@ -186,27 +116,20 @@ def copy_and_customize_template(control_id, fiscal_year, testing_period, rcm_dat
                     # Update the cells in the data row
                     if 'business_cycle' in header_cols:
                         summary_sheet.cell(row=data_row, column=header_cols['business_cycle']).value = rcm_data.get('business_cycle', '')
-                        found_headers['business_cycle'] = True
                     
                     if 'sub_process' in header_cols:
                         summary_sheet.cell(row=data_row, column=header_cols['sub_process']).value = rcm_data.get('sub_process', '')
-                        found_headers['sub_process'] = True
                     
                     if 'control_description' in header_cols:
                         summary_sheet.cell(row=data_row, column=header_cols['control_description']).value = rcm_data.get('control_description', '')
-                        found_headers['control_description'] = True
                     
                     if 'application' in header_cols:
                         summary_sheet.cell(row=data_row, column=header_cols['application']).value = rcm_data.get('application', '')
-                        found_headers['application'] = True
                     
                     rcm_section_found = True
                     break
             if rcm_section_found:
                 break
-        
-        # Remove the code that adds default headers in row 9
-        # The default section is completely removed as it's not needed
 
     except Exception as e:
         logger.error(f"Error customizing template: {str(e)}")
@@ -291,6 +214,10 @@ def generate_testing():
                 # Create folder for this control ID
                 control_dir = os.path.join(testing_dir, control_id)
                 os.makedirs(control_dir, exist_ok=True)
+                
+                # Create a Supporting Evidence folder inside the control folder
+                evidence_dir = os.path.join(control_dir, "Supporting Evidence")
+                os.makedirs(evidence_dir, exist_ok=True)
                 
                 # Create testing template for this control ID
                 if fiscal_year and testing_period:

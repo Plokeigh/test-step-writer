@@ -13,7 +13,7 @@ export default function Home() {
       color: 'from-blue-500 to-blue-600'
     },
     {
-      name: 'Upload App',
+      name: 'Scoping Doc Builder',
       description: 'Efficiently upload and manage your files with our intuitive file management system.',
       path: '/my-upload-app',
       icon: '📤',
@@ -37,11 +37,11 @@ export default function Home() {
             <h1 className="text-5xl font-bold text-gray-900 sm:text-6xl md:text-7xl mb-8">
               Welcome to{' '}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                Tools Hub
+                RA Tools Hub
               </span>
             </h1>
             <p className="mt-3 max-w-md mx-auto text-xl text-gray-600 sm:text-2xl md:mt-5 md:max-w-3xl">
-              Your central hub for accessing and managing various tools and utilities.
+              Your central hub for accessing and managing various AI-powered tools and utilities.
             </p>
           </div>
         </div>

@@ -6,8 +6,8 @@ import Link from 'next/link'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Tools Hub',
-  description: 'Your central hub for accessing and managing various tools and utilities.',
+  title: 'RA Tools Hub',
+  description: 'Your central hub for accessing and managing various AI-powered tools and utilities.',
 }
 
 export default function RootLayout({
@@ -23,15 +23,18 @@ export default function RootLayout({
             <div className="flex justify-between h-16">
               <div className="flex">
                 <Link href="/" className="flex items-center">
-                  <span className="text-xl font-bold text-gray-900">Tools Hub</span>
+                  <span className="text-xl font-bold text-gray-900">RA Tools Hub</span>
                 </Link>
               </div>
               <div className="flex items-center space-x-4">
-                <Link href="/rcm-builder" className="text-gray-600 hover:text-gray-900">
+                <Link href="/rcm-builder" className="px-3 py-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium transition-colors">
                   RCM Builder
                 </Link>
-                <Link href="/my-upload-app" className="text-gray-600 hover:text-gray-900">
-                  Upload App
+                <Link href="/my-upload-app" className="px-3 py-2 rounded-md bg-green-100 text-green-700 hover:bg-green-200 font-medium transition-colors">
+                  Scoping Doc Builder
+                </Link>
+                <Link href="/rcm-testing" className="px-3 py-2 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200 font-medium transition-colors">
+                  RCM Testing Generator
                 </Link>
               </div>
             </div>
