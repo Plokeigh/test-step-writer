@@ -13,18 +13,18 @@ export default function Home() {
       color: 'from-orange-500 to-orange-600'
     },
     {
-      name: 'RCM Builder',
-      description: 'Build and manage RCM configurations with ease. Create, edit, and deploy configurations in a user-friendly interface.',
-      path: '/rcm-builder',
-      icon: '🔧',
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
       name: 'Scoping Doc Builder',
       description: 'Efficiently upload and manage your files with our intuitive file management system.',
       path: '/my-upload-app',
       icon: '📤',
       color: 'from-emerald-500 to-emerald-600'
+    },
+    {
+      name: 'RCM Builder',
+      description: 'Build and manage RCM configurations with ease. Create, edit, and deploy configurations in a user-friendly interface.',
+      path: '/rcm-builder',
+      icon: '🔧',
+      color: 'from-blue-500 to-blue-600'
     },
     {
       name: 'RCM Testing Generator',

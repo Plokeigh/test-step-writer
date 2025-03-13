@@ -30,11 +30,11 @@ export default function RootLayout({
                 <Link href="/resources" className="px-3 py-2 rounded-md bg-orange-100 text-orange-700 hover:bg-orange-200 font-medium transition-colors">
                   Resources
                 </Link>
-                <Link href="/rcm-builder" className="px-3 py-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium transition-colors">
-                  RCM Builder
-                </Link>
                 <Link href="/my-upload-app" className="px-3 py-2 rounded-md bg-green-100 text-green-700 hover:bg-green-200 font-medium transition-colors">
                   Scoping Doc Builder
+                </Link>
+                <Link href="/rcm-builder" className="px-3 py-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium transition-colors">
+                  RCM Builder
                 </Link>
                 <Link href="/rcm-testing" className="px-3 py-2 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200 font-medium transition-colors">
                   RCM Testing Generator
