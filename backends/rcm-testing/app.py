@@ -219,6 +219,11 @@ def generate_testing():
                 evidence_dir = os.path.join(control_dir, "Supporting Evidence")
                 os.makedirs(evidence_dir, exist_ok=True)
                 
+                # Add a placeholder file in the Supporting Evidence folder to ensure it's included in the zip
+                placeholder_path = os.path.join(evidence_dir, "README.txt")
+                with open(placeholder_path, 'w') as placeholder_file:
+                    placeholder_file.write("This folder is for storing supporting evidence files for control testing.")
+                
                 # Create testing template for this control ID
                 if fiscal_year and testing_period:
                     template_filename = f"{fiscal_year}-{control_id}-{testing_period}.xlsx"
