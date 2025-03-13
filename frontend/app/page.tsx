@@ -6,6 +6,13 @@ import Link from 'next/link';
 export default function Home() {
   const tools = [
     {
+      name: 'Resources',
+      description: 'Access useful templates, documents, and resources to help streamline your work. Download and use these materials to enhance your productivity.',
+      path: '/resources',
+      icon: '📚',
+      color: 'from-orange-500 to-orange-600'
+    },
+    {
       name: 'RCM Builder',
       description: 'Build and manage RCM configurations with ease. Create, edit, and deploy configurations in a user-friendly interface.',
       path: '/rcm-builder',

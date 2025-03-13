@@ -278,6 +278,24 @@ def generate_testing():
         logger.error(f"Traceback: {logging.traceback.format_exc()}")
         return jsonify({"error": f"Error generating testing templates: {str(e)}"}), 500
 
+@app.route('/api/download-template', methods=['GET'])
+def download_template():
+    """Download the ITGC Testing Upload Template"""
+    try:
+        template_path = os.path.join(app.config['TEMPLATE_FOLDER'], 'ITGC Testing Upload Template.xlsx')
+        if not os.path.exists(template_path):
+            return jsonify({"error": "ITGC Testing Upload Template not found"}), 404
+            
+        return send_file(
+            template_path,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name='ITGC Testing Upload Template.xlsx'
+        )
+    except Exception as e:
+        logger.error(f"Error downloading template: {str(e)}")
+        return jsonify({"error": f"Error downloading template: {str(e)}"}), 500
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""

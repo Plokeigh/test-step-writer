@@ -27,6 +27,9 @@ export default function RootLayout({
                 </Link>
               </div>
               <div className="flex items-center space-x-4">
+                <Link href="/resources" className="px-3 py-2 rounded-md bg-orange-100 text-orange-700 hover:bg-orange-200 font-medium transition-colors">
+                  Resources
+                </Link>
                 <Link href="/rcm-builder" className="px-3 py-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium transition-colors">
                   RCM Builder
                 </Link>

@@ -5,6 +5,33 @@ import React, { useState } from 'react';
 export default function RCMTesting() {
   const [status, setStatus] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadTemplate = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch('http://localhost:3003/api/download-template');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ITGC Testing Upload Template.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      setStatus('Template downloaded successfully!');
+      setTimeout(() => setStatus(''), 5000);
+    } catch (error) {
+      console.error('Error:', error);
+      setStatus(`Error downloading template: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,7 +90,9 @@ export default function RCMTesting() {
             <h2 className="text-xl font-semibold mb-3">Tool Description</h2>
             <p className="mb-3">This tool generates testing templates from your RCM file:</p>
             <ol className="list-decimal list-inside space-y-2 ml-4">
-              <li>Upload your RCM template Excel file</li>
+              <li>Download the ITGC Testing Upload Template below</li>
+              <li>Fill out the template with your RCM data</li>
+              <li>Upload your completed RCM template Excel file</li>
               <li>The tool creates one folder for each unique control ID found in Column A</li>
               <li>All folders are placed in a "Testing" zip folder</li>
               <li>An Excel testing template is created for each control with key information from the RCM</li>
@@ -71,10 +100,20 @@ export default function RCMTesting() {
             </ol>
           </div>
           
+          <div className="mb-6">
+            <button
+              onClick={handleDownloadTemplate}
+              disabled={isDownloading}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+            >
+              {isDownloading ? 'Downloading...' : 'Download ITGC Testing Upload Template'}
+            </button>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label htmlFor="file" className="block text-sm font-medium text-gray-700">
-                Upload RCM Template Excel File
+                Upload Completed RCM Template Excel File
               </label>
               <input
                 type="file"

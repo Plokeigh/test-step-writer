@@ -5,6 +5,34 @@ import React, { useState } from 'react';
 export default function UploadApp() {
   const [status, setStatus] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+
+  const handleClearTemplate = async () => {
+    setIsClearing(true);
+    setStatus('Clearing template...');
+
+    try {
+      const response = await fetch('http://localhost:3002/clear-template', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      setStatus('Template cleared successfully!');
+      setTimeout(() => setStatus(''), 3000);
+    } catch (error) {
+      console.error('Error:', error);
+      setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
+    } finally {
+      setIsClearing(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -82,6 +110,32 @@ export default function UploadApp() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Scoping Doc Builder</h1>
+        
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">How to Use</h2>
+          <div className="space-y-4 text-gray-600">
+            <p className="font-medium text-gray-900">Before you begin:</p>
+            <ol className="list-decimal list-inside space-y-2">
+              <li>Save your meeting transcript as a Word document (.docx file)</li>
+              <li>Make sure your transcript is clear and well-formatted for best results</li>
+            </ol>
+
+            <p className="font-medium text-gray-900 mt-4">Processing your transcript:</p>
+            <ol className="list-decimal list-inside space-y-2">
+              <li>Click the "Upload File" button and select your meeting transcript</li>
+              <li>Wait for the processing to complete - this may take a few moments</li>
+              <li>Your processed Scoping Document will automatically download</li>
+              <li>Repeat these steps for each meeting transcript you want to process</li>
+            </ol>
+
+            <p className="font-medium text-gray-900 mt-4">When you're finished:</p>
+            <ol className="list-decimal list-inside space-y-2">
+              <li>Click the "Clear Template" button to reset the template for future use</li>
+              <li>This will remove all processed data while keeping the template structure intact</li>
+            </ol>
+          </div>
+        </div>
+
         <div className="bg-white rounded-lg shadow-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -105,13 +159,24 @@ export default function UploadApp() {
               </p>
             </div>
 
-            <button
-              type="submit"
-              disabled={isProcessing}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {isProcessing ? 'Processing...' : 'Upload File'}
-            </button>
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                disabled={isProcessing}
+                className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                {isProcessing ? 'Processing...' : 'Upload File'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleClearTemplate}
+                disabled={isClearing}
+                className="flex-1 flex justify-center py-2 px-4 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+              >
+                {isClearing ? 'Clearing...' : 'Clear Template'}
+              </button>
+            </div>
           </form>
 
           {status && (
