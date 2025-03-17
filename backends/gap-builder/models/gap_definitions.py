@@ -5,79 +5,114 @@ from typing import Dict, Any, List, Optional
 class GapExample:
     """Example of a gap for a specific control and gap status"""
     control_id: str
-    gap_status: str
+    gap_status: str  # Updated to only allow "gap" or "informal process"
     gap_title: str
     gap_description: str
     recommendation: str
+    application: Optional[str] = None  # Added to support application-specific examples
 
 # Define standard gap examples based on common control gaps
 # These will be used by the AI to generate similar gaps based on the input
 GAP_EXAMPLES = [
-    # Access Provisioning - Not Implemented
+    # Access Provisioning - Gap
     GapExample(
         control_id="APD-01",
-        gap_status="Not Implemented",
-        gap_title="Lack of Formal User Access Provisioning Process",
+        gap_status="gap",
+        gap_title="Absence of Formalized Controls and Documentation for Access Provisioning",
         gap_description=(
-            "The organization has not established a formal user access provisioning process for the application. "
-            "New user access is currently granted on an ad-hoc basis without consistent managerial approval or documentation. "
-            "This increases the risk of unauthorized access to the application and its data."
+            "Access provisioning is handled on an ad-hoc basis, where managers request access directly or "
+            "provide access themselves without a formal process or oversight. New or modified user access requests "
+            "are informally documented and approved by the appropriate personnel prior to users obtaining access to "
+            "the application. This increases the risk of unauthorized access to the application and its data, potentially "
+            "resulting in inappropriate access rights."
         ),
         recommendation=(
-            "Implement a formal user access provisioning process that includes the following elements: "
-            "1. Standardized access request form or workflow "
-            "2. Mandatory approval from the user's manager "
-            "3. Secondary approval from the application owner "
-            "4. Documentation of all approvals "
-            "5. Regular audit of access provisioning activities"
+            "Implement a formally documented access provisioning policy with defined steps and completion timeframes: "
+            "1. Develop a formally documented access provisioning policy with defined steps and completion timeframes "
+            "2. Implement a ticketing system or standardized request form to track access requests and approvals "
+            "3. Clearly define and enforce segregation of duties for access requests, approvals, and provisioning activities "
+            "4. Standardize the approval workflow for different access types, specifying required approvers "
+            "5. Conduct periodic reviews of the provisioning process for compliance and effectiveness "
+            "6. Define regular user access recertification process to verify continued need of access granted rights "
+            "7. Explore automation, such as HR system integration, to enhance efficiency and reduce manual errors"
         )
     ),
     
-    # Access Provisioning - Partially Implemented
+    # Access Provisioning - Informal Process
     GapExample(
         control_id="APD-01",
-        gap_status="Partially Implemented",
-        gap_title="Inconsistent Application of Access Approval Requirements",
+        gap_status="informal process",
+        gap_title="Inconsistent Management of Access Provisioning Controls",
         gap_description=(
-            "While a formal user access provisioning process exists, it is not consistently followed. "
-            "Approximately 30% of sampled access grants lacked documented manager approval. "
-            "The system administrators sometimes provision access without verifying all required approvals "
-            "are in place, especially for urgent requests."
+            "While access provisioning is handled on an ad-hoc basis, where Manager/Requestor "
+            "manually edits or modifies user access based on payroll information without formal "
+            "request, approval workflow, or a tracking system to track and document these changes. "
+            "Currently, there is no standardized process to ensure consistent documentation, appropriate segregation of duties, or "
+            "comprehensive review of access requirements before provisioning."
         ),
         recommendation=(
-            "Strengthen the existing access provisioning process by: "
-            "1. Implementing system controls that prevent administrators from creating accounts without "
-            "documented approvals "
-            "2. Creating an expedited approval process for urgent requests that still maintains proper documentation "
-            "3. Conducting quarterly reviews of access provisioning activities to ensure compliance "
-            "4. Providing additional training to system administrators on the importance of following "
-            "the approval process"
+            "Formalize the existing access provisioning process by: "
+            "1. Develop a formally documented access provisioning policy with defined steps and completion timeframes "
+            "2. Implement a ticketing system or standardized request form to track access requests and approvals "
+            "3. Clearly define and enforce segregation of duties for access requests, approvals, and provisioning activities "
+            "4. Standardize the approval workflow for different access types, specifying required approvers "
+            "5. Conduct periodic reviews of the provisioning process for compliance and effectiveness "
+            "6. Define regular user access recertification process to verify continued need of access granted rights "
+            "7. Explore automation, such as HR system integration, to enhance efficiency and reduce manual errors"
         )
     ),
     
-    # Access Provisioning - Improvement Needed
+    # Access Provisioning - Informal Process (Segregation of Duties)
     GapExample(
         control_id="APD-01",
-        gap_status="Improvement Needed",
+        gap_status="informal process",
         gap_title="Access Provisioning Process Lacking Segregation of Duties",
         gap_description=(
             "The current access provisioning process includes proper approvals, but lacks adequate segregation of duties. "
             "The same administrator who provisions the access is also responsible for verifying approvals. "
-            "This creates a potential conflict where access could be granted without proper oversight."
+            "This creates a potential conflict where access could be granted without proper oversight, potentially "
+            "resulting in inappropriate access rights."
         ),
         recommendation=(
             "Enhance the access provisioning process by: "
             "1. Separating the duties of approval verification and account creation "
             "2. Implementing a secondary review of all access provisioning activities "
             "3. Configuring the ticketing system to enforce workflow steps "
-            "4. Creating automated reports that identify any access granted outside the standard process"
+            "4. Creating automated reports that identify any access granted outside the standard process "
+            "5. Implementing regular reviews of access rights to ensure appropriate segregation of duties "
+            "6. Documenting clear responsibilities for each role in the access provisioning process"
         )
     ),
     
-    # Terminated User Access Removal - Not Implemented
+    # Azure Access Provisioning - Informal Process
+    GapExample(
+        control_id="APD-01_Azure",
+        gap_status="informal process",
+        gap_title="Absence of Formalized Procedures and Controls for Azure Access",
+        gap_description=(
+            "While standard access to Azure is provisioned through HR processes and controls specifically for elevated access levels to mitigate handing: "
+            "1. Absence of documented comprehensive detailed access management procedure "
+            "2. Undefined development request path or tracking system for elevated access "
+            "3. Inconsistent approval processes for elevated access changes and IT service leadership "
+            "4. Manual standard Azure access is elevated through HR rather than formal procedures "
+            "5. The absence of a formal elevated access provisioning process creates inconsistency in how access is requested, approved, and provisioned, increasing the risk of inappropriate or excessive access being granted."
+        ),
+        recommendation=(
+            "1. Develop a formally documented comprehensive detailed access management procedure "
+            "2. Implement a standardized request path or tracking system for elevated access "
+            "3. Establish a formal approval workflow including direct managers and IT/infosec leadership "
+            "4. Ensure that appropriate approvals are captured and retained "
+            "5. Retain records of all access provisioning activities to maintain a reliable audit trail "
+            "6. Provide training to all relevant stakeholders on the newly implemented processes "
+            "7. Schedule quarterly reviews of access provisioning effectiveness and compliance"
+        ),
+        application="Azure"
+    ),
+    
+    # Terminated User Access Removal - Gap
     GapExample(
         control_id="APD-02",
-        gap_status="Not Implemented",
+        gap_status="gap",
         gap_title="No Formal Process for Removing Terminated User Access",
         gap_description=(
             "The organization does not have a formal process for removing access for terminated employees. "
@@ -95,10 +130,10 @@ GAP_EXAMPLES = [
         )
     ),
     
-    # User Access Review - Partially Implemented
+    # User Access Review - Informal Process
     GapExample(
         control_id="APD-04",
-        gap_status="Partially Implemented",
+        gap_status="informal process",
         gap_title="Incomplete User Access Reviews",
         gap_description=(
             "User access reviews are performed, but they do not include all system access types. "
@@ -116,10 +151,10 @@ GAP_EXAMPLES = [
         )
     ),
     
-    # Change Management - Not Implemented
+    # Change Management - Gap
     GapExample(
         control_id="CM-01",
-        gap_status="Not Implemented",
+        gap_status="gap",
         gap_title="Absence of Formal Change Management Process",
         gap_description=(
             "The organization does not have a formal change management process for the application. "
@@ -137,10 +172,10 @@ GAP_EXAMPLES = [
         )
     ),
     
-    # Integration Monitoring - Improvement Needed
+    # Integration Monitoring - Informal Process
     GapExample(
         control_id="MO-01",
-        gap_status="Improvement Needed",
+        gap_status="informal process",
         gap_title="Limited Monitoring of Critical System Interfaces",
         gap_description=(
             "The current monitoring of system interfaces is limited to detecting complete failures. "
@@ -158,10 +193,10 @@ GAP_EXAMPLES = [
         )
     ),
     
-    # Backup Management - Partially Implemented
+    # Backup Management - Informal Process
     GapExample(
         control_id="MO-02",
-        gap_status="Partially Implemented",
+        gap_status="informal process",
         gap_title="Inadequate Testing of System Backup Restoration",
         gap_description=(
             "While system backups are being performed regularly, there is limited testing of backup "
@@ -179,10 +214,10 @@ GAP_EXAMPLES = [
         )
     ),
     
-    # SOC Report Review - Improvement Needed
+    # SOC Report Review - Informal Process
     GapExample(
         control_id="ITELC-01",
-        gap_status="Improvement Needed",
+        gap_status="informal process",
         gap_title="Incomplete Vendor SOC Report Review Process",
         gap_description=(
             "The organization reviews vendor SOC reports, but does not adequately assess the impact of "
@@ -201,30 +236,43 @@ GAP_EXAMPLES = [
     )
 ]
 
-def find_gap_examples_by_control_and_status(control_id: str, gap_status: str) -> List[GapExample]:
+# Update the find functions to accommodate application-specific filtering
+def find_gap_examples_by_control_and_status(control_id: str, gap_status: str, application: Optional[str] = None) -> List[GapExample]:
     """
     Find gap examples that match the given control ID and gap status.
     
     Args:
         control_id: The ID of the control
-        gap_status: The gap status to match
+        gap_status: The gap status to match (either "gap" or "informal process")
+        application: Optional application name to filter by
         
     Returns:
         A list of matching gap examples
     """
-    return [
+    examples = [
         example for example in GAP_EXAMPLES 
         if example.control_id == control_id and example.gap_status == gap_status
     ]
+    
+    if application:
+        examples = [example for example in examples if example.application == application]
+        
+    return examples
 
-def find_gap_examples_by_control(control_id: str) -> List[GapExample]:
+def find_gap_examples_by_control(control_id: str, application: Optional[str] = None) -> List[GapExample]:
     """
     Find gap examples that match the given control ID.
     
     Args:
         control_id: The ID of the control
+        application: Optional application name to filter by
         
     Returns:
         A list of matching gap examples
     """
-    return [example for example in GAP_EXAMPLES if example.control_id == control_id] 
+    examples = [example for example in GAP_EXAMPLES if example.control_id == control_id]
+    
+    if application:
+        examples = [example for example in examples if example.application == application]
+        
+    return examples 
