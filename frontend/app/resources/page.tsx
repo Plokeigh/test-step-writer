@@ -27,6 +27,21 @@ export default function Resources() {
             Download ITGC Walkthrough Agenda
           </button>
         </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl mx-auto mt-8">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">IT SOX Walkthrough Prep</h2>
+          <p className="text-gray-600 mb-6">
+            A presentation designed to help prepare clients for upcoming walkthrough meetings. 
+            This resource provides essential information and guidelines to ensure productive and 
+            efficient walkthrough sessions.
+          </p>
+          <button
+            onClick={() => window.location.href = '/resources/it-sox-wt-prep.pptx'}
+            className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors duration-200 font-medium"
+          >
+            Download IT SOX Walkthrough Prep
+          </button>
+        </div>
       </div>
     </main>
   );

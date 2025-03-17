@@ -1,4 +1,5 @@
 {
+  "/not-found": "app/not-found.js",
   "/rcm-testing/page": "app/rcm-testing/page.js",
   "/my-upload-app/page": "app/my-upload-app/page.js",
   "/page": "app/page.js",
