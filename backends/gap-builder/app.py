@@ -12,30 +12,99 @@ from services.gap_generator import GapGenerator
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Load environment variables
-load_dotenv(override=True)
+# Get the script directory
+script_dir = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(script_dir, '.env')
+dotenv_new_path = os.path.join(script_dir, '.env.new')
+
+# Check if the alternate .env file exists and use it if needed
+if os.path.exists(dotenv_new_path) and not os.path.exists(dotenv_path):
+    logger.info(f"Found .env.new but no .env. Using .env.new instead.")
+    dotenv_path = dotenv_new_path
+
+# Debug .env file contents
+try:
+    if os.path.exists(dotenv_path):
+        logger.info(f".env file exists at: {dotenv_path}")
+        with open(dotenv_path, 'r') as file:
+            contents = file.read()
+            logger.info(f".env file size: {len(contents)} bytes")
+            logger.info(f".env file line count: {len(contents.splitlines())}")
+            
+            # Print each line for debugging
+            logger.info("Contents of .env file:")
+            for i, line in enumerate(contents.splitlines()):
+                logger.info(f"Line {i+1}: {line}")
+    else:
+        logger.error(f".env file not found at: {dotenv_path}")
+except Exception as e:
+    logger.error(f"Error reading .env file: {str(e)}")
+    logger.error(traceback.format_exc())
+
+# Load environment variables - use explicit path to .env file
+logger.info(f"Loading .env from: {dotenv_path}")
+load_dotenv(dotenv_path=dotenv_path, override=True)
+
+# Manually load environment variables from .env
+try:
+    with open(dotenv_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                key, value = line.split('=', 1)
+                os.environ[key] = value
+                logger.info(f"Manually set env var: {key}")
+except Exception as e:
+    logger.error(f"Error manually setting environment variables: {str(e)}")
+
+# Log OpenAI configuration before clearing
+logger.debug(f"Before clearing - API type: {os.getenv('OPENAI_API_TYPE')}")
+logger.debug(f"Before clearing - API key (first 5 chars): {os.getenv('OPENAI_API_KEY')[:5] if os.getenv('OPENAI_API_KEY') else 'None'}")
+logger.debug(f"Before clearing - API base: {os.getenv('OPENAI_API_BASE')}")
+logger.debug(f"Before clearing - API version: {os.getenv('OPENAI_API_VERSION')}")
+logger.debug(f"Before clearing - Deployment name: {os.getenv('AZURE_DEPLOYMENT_NAME')}")
 
 # Clear any existing OpenAI-related environment variables
 for key in list(os.environ.keys()):
     if key.startswith('OPENAI_') or key.startswith('AZURE_'):
         del os.environ[key]
 
-# Load environment variables
-load_dotenv(override=True)
+# Reload environment variables with explicit path
+load_dotenv(dotenv_path=dotenv_path, override=True)
+
+# Manually set environment variables again
+try:
+    with open(dotenv_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                key, value = line.split('=', 1)
+                os.environ[key] = value
+except Exception as e:
+    logger.error(f"Error manually setting environment variables after clearing: {str(e)}")
 
 # Configure OpenAI for Azure
-openai.api_type = "azure"  # Force azure type
+openai.api_type = os.getenv("OPENAI_API_TYPE", "azure")  # Force azure type if not set
 openai.api_base = os.getenv("OPENAI_API_BASE")
 openai.api_version = os.getenv("OPENAI_API_VERSION")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Log configuration
-logger.debug(f"App.py - .env file location: {os.path.abspath('.env')}")
+logger.debug(f"App.py - .env file location: {dotenv_path}")
 logger.debug(f"App.py - API type: {openai.api_type}")
 logger.debug(f"App.py - API base: {openai.api_base}")
 logger.debug(f"App.py - API version: {openai.api_version}")
 logger.debug(f"App.py - API key (first 5 chars): {openai.api_key[:5] if openai.api_key else 'None'}")
 logger.debug(f"App.py - Deployment name: {os.getenv('AZURE_DEPLOYMENT_NAME')}")
+
+# Hard-code if environment variables are still not set
+if not all([openai.api_type, openai.api_base, openai.api_version, openai.api_key]):
+    logger.warning("Some environment variables still not set. Using hardcoded values.")
+    openai.api_type = "azure"
+    openai.api_base = "https://it-risk-advisory.cognitiveservices.azure.com"
+    openai.api_version = "2024-08-01-preview"
+    openai.api_key = "6sYzk9nd49SnrWNfxdMsUqeLUnnhfwTOHCnAYVTllARQ1JQxywz0JQQJ99BAACYeBjFXJ3w3AAAAACOGc2jb"
+    os.environ["AZURE_DEPLOYMENT_NAME"] = "gpt-4o-it-risk"
 
 app = Flask(__name__)
 CORS(app)

@@ -1,4 +1,6 @@
 {
   "/page": "app/page.js",
-  "/resources/page": "app/resources/page.js"
+  "/resources/page": "app/resources/page.js",
+  "/rcm-testing/page": "app/rcm-testing/page.js",
+  "/gap-builder/page": "app/gap-builder/page.js"
 }

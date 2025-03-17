@@ -1,6 +1,20 @@
 @echo off
 cd /d %~dp0
 
+:: Check if .env file exists
+if not exist ".env" (
+    echo ERROR: .env file not found in directory: %cd%
+    echo Please ensure the .env file exists with proper OpenAI API configuration.
+    echo Required variables in .env:
+    echo   OPENAI_API_TYPE=azure
+    echo   OPENAI_API_KEY=your_api_key
+    echo   OPENAI_API_BASE=your_api_base_url
+    echo   OPENAI_API_VERSION=your_api_version
+    echo   AZURE_DEPLOYMENT_NAME=your_deployment_name
+    pause
+    exit /b 1
+)
+
 :: Clear any existing OPENAI_API_KEY environment variable
 set OPENAI_API_KEY=
 

@@ -27,6 +27,13 @@ export default function Home() {
       color: 'from-blue-500 to-blue-600'
     },
     {
+      name: 'Gap Builder',
+      description: 'Generate gap analysis and recommendations for IT General Controls (ITGC). Upload your control assessment templates and get AI-generated gap descriptions and remediation plans.',
+      path: '/gap-builder',
+      icon: '🔍',
+      color: 'from-red-500 to-red-600'
+    },
+    {
       name: 'RCM Testing Generator',
       description: 'Generate testing templates from RCM files. Creates folders and Excel templates for each control ID.',
       path: '/rcm-testing',

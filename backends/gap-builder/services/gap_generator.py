@@ -6,6 +6,20 @@ from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 from typing import Dict, List, Any, Optional, Tuple
 from models.gap_definitions import find_gap_examples_by_control, find_gap_examples_by_control_and_status
 
+# Import direct configuration as a fallback
+try:
+    from config_direct import setup_openai_config
+except ImportError:
+    # Define the function here as a fallback in case the import fails
+    def setup_openai_config():
+        logging.getLogger(__name__).info("Using inline fallback configuration")
+        openai.api_type = "azure"
+        openai.api_base = "https://it-risk-advisory.cognitiveservices.azure.com"
+        openai.api_version = "2024-08-01-preview"
+        openai.api_key = "6sYzk9nd49SnrWNfxdMsUqeLUnnhfwTOHCnAYVTllARQ1JQxywz0JQQJ99BAACYeBjFXJ3w3AAAAACOGc2jb"
+        os.environ["AZURE_DEPLOYMENT_NAME"] = "gpt-4o-it-risk"
+        return True
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -14,8 +28,27 @@ class GapGenerator:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.setup_styles()
-        # OpenAI configuration is handled in app.py
+        # Check if OpenAI is configured properly
+        self.check_openai_config()
         self.cache = {}  # Simple cache for API responses
+        
+    def check_openai_config(self):
+        """Verify OpenAI configuration is properly set up"""
+        self.logger.debug(f"GapGenerator - API type: {openai.api_type}")
+        self.logger.debug(f"GapGenerator - API base: {openai.api_base}")
+        self.logger.debug(f"GapGenerator - API version: {openai.api_version}")
+        self.logger.debug(f"GapGenerator - API key (first 5 chars): {openai.api_key[:5] if openai.api_key else 'None'}")
+        self.logger.debug(f"GapGenerator - Deployment name: {os.getenv('AZURE_DEPLOYMENT_NAME')}")
+        
+        # If any configuration is missing, apply direct configuration
+        if not all([openai.api_type, openai.api_base, openai.api_version, openai.api_key, os.getenv('AZURE_DEPLOYMENT_NAME')]):
+            self.logger.warning("OpenAI configuration incomplete. Applying direct configuration.")
+            setup_openai_config()
+            self.logger.debug(f"After direct config - API type: {openai.api_type}")
+            self.logger.debug(f"After direct config - API base: {openai.api_base}")
+            self.logger.debug(f"After direct config - API version: {openai.api_version}")
+            self.logger.debug(f"After direct config - API key (first 5 chars): {openai.api_key[:5] if openai.api_key else 'None'}")
+            self.logger.debug(f"After direct config - Deployment name: {os.getenv('AZURE_DEPLOYMENT_NAME')}")
         
     def setup_styles(self):
         """Setup Excel styling for the output worksheet"""
@@ -210,9 +243,17 @@ Your response should be tailored to match the style and format of the examples w
 """
         
         try:
+            # Get deployment name from environment, with fallback
+            deployment_name = os.getenv('AZURE_DEPLOYMENT_NAME')
+            if not deployment_name:
+                self.logger.warning("AZURE_DEPLOYMENT_NAME not found in environment variables, using default 'gpt-4o-it-risk'")
+                deployment_name = 'gpt-4o-it-risk'
+                
+            self.logger.debug(f"Using deployment name: {deployment_name}")
+                
             # Call Azure OpenAI API
             response = openai.ChatCompletion.create(
-                engine=os.getenv('AZURE_DEPLOYMENT_NAME', 'gpt-4o-it-risk'),
+                engine=deployment_name,
                 messages=[
                     {"role": "system", "content": "You are an IT audit expert who specializes in IT General Controls (ITGC). You provide detailed gap assessments and remediation recommendations."},
                     {"role": "user", "content": prompt}
