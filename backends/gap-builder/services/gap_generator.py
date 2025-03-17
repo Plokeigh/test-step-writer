@@ -1,0 +1,278 @@
+import os
+import logging
+import openai
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
+from typing import Dict, List, Any, Optional, Tuple
+from models.gap_definitions import find_gap_examples_by_control, find_gap_examples_by_control_and_status
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+class GapGenerator:
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.setup_styles()
+        # OpenAI configuration is handled in app.py
+        self.cache = {}  # Simple cache for API responses
+        
+    def setup_styles(self):
+        """Setup Excel styling for the output worksheet"""
+        self.header_fill = PatternFill(start_color="CCE5FF", end_color="CCE5FF", fill_type="solid")
+        self.border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+        self.header_font = Font(bold=True)
+        self.wrap_text_alignment = Alignment(wrap_text=True, vertical='top')
+        
+    def process_template(self, input_file: str) -> openpyxl.Workbook:
+        """
+        Process the input template and generate gaps and recommendations.
+        
+        Args:
+            input_file: Path to the input Excel file
+            
+        Returns:
+            The processed workbook with gaps and recommendations
+        """
+        try:
+            # Load the workbook
+            workbook = openpyxl.load_workbook(input_file)
+            sheet = workbook.active
+            
+            # Find the maximum row with data
+            max_row = sheet.max_row
+            
+            # Detect headers
+            headers = {}
+            for col in range(1, sheet.max_column + 1):
+                cell_value = sheet.cell(row=1, column=col).value
+                if cell_value:
+                    headers[cell_value.strip()] = col
+            
+            # Check if required columns exist
+            required_columns = [
+                'Control ID', 'Control Name', 'Control Description', 
+                'Application', 'Current Process', 'Gap Status',
+                'Gap Title', 'Gap Description', 'Recommendation'
+            ]
+            
+            for column in required_columns:
+                if column not in headers:
+                    raise ValueError(f"Required column '{column}' not found in the template")
+            
+            # Process each row in the template
+            for row in range(2, max_row + 1):
+                # Check if this is an empty row
+                if not sheet.cell(row=row, column=headers['Control ID']).value:
+                    continue
+                    
+                # Extract control information
+                control_id = sheet.cell(row=row, column=headers['Control ID']).value
+                control_name = sheet.cell(row=row, column=headers['Control Name']).value
+                control_description = sheet.cell(row=row, column=headers['Control Description']).value
+                application = sheet.cell(row=row, column=headers['Application']).value
+                current_process = sheet.cell(row=row, column=headers['Current Process']).value
+                gap_status = sheet.cell(row=row, column=headers['Gap Status']).value
+                
+                # Skip if gap status is empty or "No Gap"
+                if not gap_status or gap_status.lower() == "no gap":
+                    continue
+                
+                # Check if Gap Title, Gap Description, and Recommendation are already filled
+                gap_title_cell = sheet.cell(row=row, column=headers['Gap Title'])
+                gap_desc_cell = sheet.cell(row=row, column=headers['Gap Description'])
+                recommendation_cell = sheet.cell(row=row, column=headers['Recommendation'])
+                
+                # Skip if all gap fields are already filled
+                if (gap_title_cell.value and gap_desc_cell.value and recommendation_cell.value):
+                    continue
+                
+                # Generate gaps and recommendations
+                gap_title, gap_description, recommendation = self.generate_gap_content(
+                    control_id=control_id,
+                    control_name=control_name,
+                    control_description=control_description,
+                    application=application,
+                    current_process=current_process,
+                    gap_status=gap_status
+                )
+                
+                # Update the cells with generated content
+                gap_title_cell.value = gap_title
+                gap_desc_cell.value = gap_description
+                recommendation_cell.value = recommendation
+                
+                # Apply formatting
+                gap_title_cell.alignment = self.wrap_text_alignment
+                gap_desc_cell.alignment = self.wrap_text_alignment
+                recommendation_cell.alignment = self.wrap_text_alignment
+                
+            # Auto-adjust column widths for better readability
+            for col in range(1, sheet.max_column + 1):
+                max_length = 0
+                column = openpyxl.utils.get_column_letter(col)
+                for row in range(1, max_row + 1):
+                    cell = sheet.cell(row=row, column=col)
+                    if cell.value:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(str(cell.value))
+                        except:
+                            pass
+                adjusted_width = max(max_length, 10)
+                sheet.column_dimensions[column].width = min(adjusted_width, 50)
+            
+            return workbook
+            
+        except Exception as e:
+            self.logger.error(f"Error processing template: {str(e)}")
+            raise
+    
+    def generate_gap_content(
+        self, 
+        control_id: str, 
+        control_name: str, 
+        control_description: str,
+        application: str,
+        current_process: str,
+        gap_status: str
+    ) -> Tuple[str, str, str]:
+        """
+        Generate gap title, description, and recommendation using Azure OpenAI.
+        
+        Args:
+            control_id: The control ID
+            control_name: The name of the control
+            control_description: Description of the control
+            application: The application name
+            current_process: Description of the current process
+            gap_status: The gap status (Not Implemented, Partially Implemented, Improvement Needed)
+            
+        Returns:
+            Tuple containing gap title, gap description, and recommendation
+        """
+        # Create a cache key
+        cache_key = f"{control_id}_{application}_{gap_status}_{hash(current_process)}"
+        
+        # Check if response is in cache
+        if cache_key in self.cache:
+            return self.cache[cache_key]
+            
+        # Find examples for this control and gap status
+        examples = find_gap_examples_by_control_and_status(control_id, gap_status)
+        
+        # If no exact match, get all examples for this control
+        if not examples:
+            examples = find_gap_examples_by_control(control_id)
+            
+        # Generate example text for the prompt
+        example_text = ""
+        if examples:
+            for i, example in enumerate(examples, 1):
+                example_text += f"Example {i}:\n"
+                example_text += f"Gap Title: {example.gap_title}\n"
+                example_text += f"Gap Description: {example.gap_description}\n"
+                example_text += f"Recommendation: {example.recommendation}\n\n"
+        
+        # Build the prompt for OpenAI
+        prompt = f"""
+I need to generate a Gap Title, Gap Description, and Recommendation for an IT General Control (ITGC) that has a gap.
+
+Control Information:
+- Control ID: {control_id}
+- Control Name: {control_name}
+- Control Description: {control_description}
+- Application: {application}
+- Current Process: {current_process}
+- Gap Status: {gap_status}
+
+Based on the Control Information, please generate a concise Gap Title, a detailed Gap Description, and a specific Recommendation. 
+
+The Gap Title should be a brief (1-2 line) summary of the gap.
+
+The Gap Description should explain what specifically is missing or inadequate in the current process compared to the control requirements. It should reference specifics from the Current Process description and explain why it doesn't meet the Control Description requirements.
+
+The Recommendation should provide specific, actionable steps to remediate the gap.
+
+{example_text}
+
+Please format your response in the following structure:
+Gap Title: [Your generated gap title]
+Gap Description: [Your generated gap description]
+Recommendation: [Your generated recommendation]
+
+Your response should be tailored to match the style and format of the examples while being specific to this control and application.
+"""
+        
+        try:
+            # Call Azure OpenAI API
+            response = openai.ChatCompletion.create(
+                engine=os.getenv('AZURE_DEPLOYMENT_NAME', 'gpt-4o-it-risk'),
+                messages=[
+                    {"role": "system", "content": "You are an IT audit expert who specializes in IT General Controls (ITGC). You provide detailed gap assessments and remediation recommendations."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.2,
+                max_tokens=1000
+            )
+            
+            response_text = response.choices[0].message['content'].strip()
+            
+            # Parse the response to extract the three components
+            gap_title = ""
+            gap_description = ""
+            recommendation = ""
+            
+            current_section = None
+            for line in response_text.split('\n'):
+                if line.startswith("Gap Title:"):
+                    current_section = "title"
+                    gap_title = line[len("Gap Title:"):].strip()
+                elif line.startswith("Gap Description:"):
+                    current_section = "description"
+                    gap_description = line[len("Gap Description:"):].strip()
+                elif line.startswith("Recommendation:"):
+                    current_section = "recommendation"
+                    recommendation = line[len("Recommendation:"):].strip()
+                elif current_section == "title" and not line.startswith("Gap Description:"):
+                    gap_title += " " + line.strip()
+                elif current_section == "description" and not line.startswith("Recommendation:"):
+                    gap_description += " " + line.strip() if gap_description else line.strip()
+                elif current_section == "recommendation":
+                    recommendation += " " + line.strip() if recommendation else line.strip()
+            
+            # Verify we have all three parts
+            if not (gap_title and gap_description and recommendation):
+                # Fallback: Split the response into three roughly equal parts
+                parts = response_text.split('\n\n', 2)
+                if len(parts) >= 3:
+                    gap_title = parts[0].replace("Gap Title:", "").strip()
+                    gap_description = parts[1].replace("Gap Description:", "").strip()
+                    recommendation = parts[2].replace("Recommendation:", "").strip()
+                else:
+                    # Last resort fallback
+                    total_length = len(response_text)
+                    gap_title = response_text[:int(total_length * 0.1)].strip()
+                    gap_description = response_text[int(total_length * 0.1):int(total_length * 0.5)].strip()
+                    recommendation = response_text[int(total_length * 0.5):].strip()
+            
+            # Cache the result
+            result = (gap_title, gap_description, recommendation)
+            self.cache[cache_key] = result
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Error generating gap content: {str(e)}")
+            
+            # Fallback content in case the API call fails
+            return (
+                f"Gap in {control_name}",
+                f"The current implementation of {control_name} for {application} does not meet the requirements specified in the control description. The current process '{current_process}' has a {gap_status.lower()} status.",
+                f"Implement proper controls to address the {gap_status.lower()} status of {control_name}."
+            ) 

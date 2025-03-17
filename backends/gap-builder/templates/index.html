@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gap Builder - ITGC Gaps and Recommendations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(.4,0,.6,1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+        .drop-zone {
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: #4299e1;
+            background-color: #ebf8ff;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-3xl font-bold text-blue-800 mb-2">Gap Builder</h1>
+            <p class="text-gray-600">Generate ITGC Gaps and Recommendations from your template</p>
+        </header>
+
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">How it works</h2>
+                <ol class="list-decimal pl-6 space-y-2 text-gray-700">
+                    <li>Upload your Excel template with these columns:
+                        <ul class="list-disc pl-6 mt-2 space-y-1 text-sm">
+                            <li>Control ID</li>
+                            <li>Control Name</li>
+                            <li>Control Description</li>
+                            <li>Application</li>
+                            <li>Current Process</li>
+                            <li>Gap Status</li>
+                            <li>Gap Title (will be filled)</li>
+                            <li>Gap Description (will be filled)</li>
+                            <li>Recommendation (will be filled)</li>
+                        </ul>
+                    </li>
+                    <li>Gap Builder will analyze each control with a gap status</li>
+                    <li>AI will generate Gap Title, Description, and Recommendation</li>
+                    <li>Download the completed Excel file with your gaps</li>
+                </ol>
+            </div>
+
+            <form id="uploadForm" class="mb-6">
+                <div id="dropZone" class="drop-zone flex flex-col items-center justify-center p-10 rounded-lg cursor-pointer mb-4">
+                    <svg class="w-12 h-12 text-blue-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <p class="text-gray-700 font-medium mb-2">Drag and drop your Excel file here</p>
+                    <p class="text-gray-500 text-sm mb-4">or</p>
+                    <input type="file" id="fileInput" class="hidden" accept=".xlsx,.xls">
+                    <button type="button" id="browseButton" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition duration-300">
+                        Browse Files
+                    </button>
+                    <p id="fileName" class="mt-4 text-sm text-gray-600"></p>
+                </div>
+
+                <div class="flex justify-center">
+                    <button type="submit" id="submitButton" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300 w-full max-w-xs disabled:opacity-50 disabled:cursor-not-allowed">
+                        Generate Gaps
+                    </button>
+                </div>
+            </form>
+
+            <div id="processingIndicator" class="hidden flex flex-col items-center justify-center p-6">
+                <div class="animate-pulse flex space-x-4 items-center mb-4">
+                    <div class="rounded-full bg-blue-400 h-3 w-3"></div>
+                    <div class="rounded-full bg-blue-400 h-3 w-3"></div>
+                    <div class="rounded-full bg-blue-400 h-3 w-3"></div>
+                </div>
+                <p class="text-gray-700">Processing your template...</p>
+                <p class="text-gray-500 text-sm mt-2">This may take a few minutes depending on the number of controls.</p>
+            </div>
+
+            <div id="errorMessage" class="hidden mt-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"></div>
+        </div>
+
+        <div class="mt-12 text-center text-gray-500 text-sm">
+            <p>For questions or issues, please contact your IT Risk team</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const browseButton = document.getElementById('browseButton');
+            const fileName = document.getElementById('fileName');
+            const uploadForm = document.getElementById('uploadForm');
+            const submitButton = document.getElementById('submitButton');
+            const processingIndicator = document.getElementById('processingIndicator');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Handle file browse button
+            browseButton.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // Handle file selection
+            fileInput.addEventListener('change', (e) => {
+                handleFileSelection(e.target.files);
+            });
+
+            // Handle drag and drop events
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('drag-over');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('drag-over');
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                handleFileSelection(files);
+            }, false);
+
+            function handleFileSelection(files) {
+                if (files.length > 0) {
+                    const file = files[0];
+                    
+                    // Check if it's an Excel file
+                    if (!file.name.match(/\.(xlsx|xls)$/)) {
+                        showError('Please select an Excel file (.xlsx or .xls)');
+                        return;
+                    }
+                    
+                    fileName.textContent = file.name;
+                    submitButton.disabled = false;
+                    hideError();
+                }
+            }
+
+            // Handle form submission
+            uploadForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                if (!fileInput.files.length) {
+                    showError('Please select a file first');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // Show processing indicator
+                uploadForm.classList.add('hidden');
+                processingIndicator.classList.remove('hidden');
+                hideError();
+                
+                // Send file to server
+                fetch('/api/generate-gaps', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Error processing the file');
+                        });
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create download link for the processed file
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'itgc_gaps_recommendations.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    // Reset form
+                    resetForm();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError(error.message || 'Error processing the file');
+                    uploadForm.classList.remove('hidden');
+                    processingIndicator.classList.add('hidden');
+                });
+            });
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('hidden');
+            }
+
+            function hideError() {
+                errorMessage.classList.add('hidden');
+            }
+
+            function resetForm() {
+                uploadForm.reset();
+                fileName.textContent = '';
+                submitButton.disabled = true;
+                uploadForm.classList.remove('hidden');
+                processingIndicator.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html> 
