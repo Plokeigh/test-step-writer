@@ -18,7 +18,7 @@ GAP_EXAMPLES = [
     GapExample(
         control_id="APD-01",
         gap_status="gap",
-        gap_title="Complete Absence of Access Provisioning Process and Controls",
+        gap_title="Absence of Access Provisioning Process and Controls",
         gap_description=(
             "The organization has no established process (formal or informal) for managing user access provisioning. "
             "Access is granted on a completely ad-hoc basis with no consistency, documentation, or oversight. "
@@ -28,7 +28,7 @@ GAP_EXAMPLES = [
             "potentially resulting in data breaches, unauthorized transactions, or compliance violations."
         ),
         recommendation=(
-            "Establish a comprehensive access provisioning process from scratch: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Create a formal access provisioning policy with clearly defined procedures, roles, and timeframes "
             "2. Implement a ticketing system or standardized request form to track access requests and approvals "
             "3. Establish and enforce segregation of duties for access requests, approvals, and provisioning activities "
@@ -43,16 +43,15 @@ GAP_EXAMPLES = [
     GapExample(
         control_id="APD-01",
         gap_status="informal process",
-        gap_title="Inconsistent Management of Access Provisioning Controls",
+        gap_title="Absence of Formalized Process for Access Provisioning",
         gap_description=(
-            "While access provisioning is handled on an ad-hoc basis, where Manager/Requestor "
-            "manually edits or modifies user access based on payroll information without formal "
-            "request, approval workflow, or a tracking system to track and document these changes. "
-            "Currently, there is no standardized process to ensure consistent documentation, appropriate segregation of duties, or "
+            "Access provisioning is currently handled on an ad-hoc basis, with managers/requestors manually "
+            "modifying user access based on payroll information without formal request workflows or tracking systems. "
+            "There is no standardized process to ensure consistent documentation, appropriate segregation of duties, or "
             "comprehensive review of access requirements before provisioning."
         ),
         recommendation=(
-            "Formalize the existing access provisioning process by: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Develop a formally documented access provisioning policy with defined steps and completion timeframes "
             "2. Implement a ticketing system or standardized request form to track access requests and approvals "
             "3. Clearly define and enforce segregation of duties for access requests, approvals, and provisioning activities "
@@ -65,7 +64,7 @@ GAP_EXAMPLES = [
     
     # Terminated User Access Removal - Informal Process (JPMC-specific)
     GapExample(
-        control_id="APD-02-JPMC",
+        control_id="APD-02",
         gap_status="informal process",
         gap_title="Absence of Formal Termination Procedure for System Access Removal",
         gap_description=(
@@ -77,7 +76,7 @@ GAP_EXAMPLES = [
             "access from terminated employees."
         ),
         recommendation=(
-            "Implement a standardized termination procedure by: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Developing a formalized termination notification workflow clearly defining responsibilities of HR and system administrators. "
             "2. Deploying a centralized ticketing system for tracking and documenting termination notifications and access removal actions. "
             "3. Establishing formal tracking and monitoring procedures to ensure access removal occurs within three business days. "
@@ -102,7 +101,7 @@ GAP_EXAMPLES = [
             "creating significant risks of unauthorized access, data breaches, and potential malicious activity from former employees."
         ),
         recommendation=(
-            "Establish a comprehensive terminated user access removal process from scratch: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Create a formal termination process policy outlining specific procedures, responsibilities, and timeframes for access removal "
             "2. Implement an automated notification system from HR to IT when employees are terminated "
             "3. Develop a tracking mechanism to monitor all terminations and verify access removal completion "
@@ -113,28 +112,7 @@ GAP_EXAMPLES = [
             "8. Implement periodic audits to ensure the process is functioning effectively and no terminated users retain access"
         )
     ),
-    
-    # User Access Review - Informal Process
-    GapExample(
-        control_id="APD-04",
-        gap_status="informal process",
-        gap_title="Incomplete User Access Reviews",
-        gap_description=(
-            "User access reviews are performed, but they do not include all system access types. "
-            "Reviews focus on standard user accounts but exclude service accounts, administrative "
-            "accounts, and temporary access. Additionally, there is limited documentation of "
-            "access removal actions taken based on review findings."
-        ),
-        recommendation=(
-            "Enhance the user access review process by: "
-            "1. Expanding the scope to include all account types (standard, administrative, service, temporary) "
-            "2. Creating a standardized template for reviewers to document their assessments "
-            "3. Implementing a tracking mechanism for access changes identified during reviews "
-            "4. Establishing timeframes for completing remediation actions "
-            "5. Requiring evidence of completion for any access modifications"
-        )
-    ),
-    
+
     # Annual Role Permissions Review - Gap
     GapExample(
         control_id="APD-03",
@@ -149,7 +127,7 @@ GAP_EXAMPLES = [
             "as business processes and user responsibilities change."
         ),
         recommendation=(
-            "Establish a formal annual role and permission review process with clear ownership and accountability for management oversight: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Establish a formal annual role and permission review process with clear ownership and accountability for management oversight "
             "2. Develop a standardized review template that documents all system roles (particularly custom roles), their associated permissions, and their business justification "
             "3. Implement a process to regularly review system-provided role and permission listings with adequate HR information (terminated employees) "
@@ -177,7 +155,7 @@ GAP_EXAMPLES = [
             "that appropriate oversight of system roles and permissions is maintained."
         ),
         recommendation=(
-            "Formalize and enhance the existing role and permission review process by: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Establish a formal annual role and permission review process with clear ownership and accountability for management oversight "
             "2. Develop a standardized review template that documents all system roles (particularly custom roles), their associated permissions, and their business justification "
             "3. Implement a ticketing system to formally document review findings, approvals, and track remediation efforts to completion "
@@ -192,7 +170,7 @@ GAP_EXAMPLES = [
 
         # Quarterly User Access Review - Gap (Azure)
     GapExample(
-        control_id="APD-04-Azure",
+        control_id="APD-04",
         gap_status="gap",
         gap_title="Absence of Quarterly User Access Review Process",
         gap_description=(
@@ -204,7 +182,7 @@ GAP_EXAMPLES = [
             "indefinitely, creating significant security risks and potential compliance violations."
         ),
         recommendation=(
-            "Establish quarterly user access reviews with clear management ownership and responsibilities: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Establish quarterly user access reviews with clear management ownership and responsibilities "
             "2. Generate comprehensive user access listings, including roles, permissions, and login activity "
             "3. Implement formal IT controls with documented evidence of report generation and validation "
@@ -213,13 +191,12 @@ GAP_EXAMPLES = [
             "6. Maintain remediation activities and verify timely implementation of access changes within three business days "
             "7. Maintain evidence of completed review and remediation verification "
             "8. Implement calendar-driven accountability measures ensuring timely quarterly reviews"
-        ),
-        application="Azure"
+        )
     ),
     
     # Quarterly User Access Review - Informal Process (Azure)
     GapExample(
-        control_id="APD-04-Azure",
+        control_id="APD-04",
         gap_status="informal process",
         gap_title="Inadequate Quarterly User Access Review Process",
         gap_description=(
@@ -232,7 +209,7 @@ GAP_EXAMPLES = [
             "The lack of structured documentation significantly limits accountability and the ability to demonstrate compliance with access control requirements."
         ),
         recommendation=(
-            "Formalize and enhance the existing quarterly user access review process by: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Establish quarterly user access reviews with clear management ownership and responsibilities "
             "2. Generate comprehensive user access listings, including roles, permissions, and login activity "
             "3. Implement formal IT controls with documented evidence of report generation and validation "
@@ -241,13 +218,12 @@ GAP_EXAMPLES = [
             "6. Maintain remediation activities and verify timely implementation of access changes within three business days "
             "7. Maintain evidence of completed review and remediation verification "
             "8. Implement calendar-driven accountability measures ensuring timely quarterly reviews"
-        ),
-        application="Azure"
+        )
     ),
     
     # Generic/Non-Human Accounts Management - Gap (Azure)
     GapExample(
-        control_id="APD-05-Azure",
+        control_id="APD-05",
         gap_status="gap",
         gap_title="Absence of Secure Credential Management Controls for Privileged Generic Accounts",
         gap_description=(
@@ -259,7 +235,7 @@ GAP_EXAMPLES = [
             "The absence of controls around these high-risk accounts creates significant security vulnerabilities that could lead to unauthorized access or system compromise."
         ),
         recommendation=(
-            "Implement comprehensive controls for generic/non-human accounts: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Complete a comprehensive inventory of generic accounts, including purpose, access level, and management practices "
             "2. Deploy secure credential management tools (such as CyberArk, Secret Server, or Keeper) "
             "3. Establish policies for justification, approval, credential rotation, and secure vault storage "
@@ -268,25 +244,23 @@ GAP_EXAMPLES = [
             "6. Periodically review generic account usage, confirming adherence to procedures and continued business justification "
             "7. Implement automated notification of password changes and establish credential rotation schedules "
             "8. Train personnel on credential management policies and secure handling practices"
-        ),
-        application="Azure"
+        )
     ),
     
     # Generic/Non-Human Accounts Management - Informal Process (Azure)
     GapExample(
-        control_id="APD-05-Azure",
+        control_id="APD-05",
         gap_status="informal process",
         gap_title="Inadequate Management of Generic and Privileged Non-Human Accounts",
         gap_description=(
-            "There are system / non-human accounts that are tracked and managed informally."
-            "Basic rules are established based on business need and the passwords are locked"
-            "within a vault management system. However, this process is inconsistent and not formalized. "
-            "The password handling procedures are not well-documented, and IT staff rely on informal knowledge sharing to manage these credentials. "
-            "When IT Admin account changes are needed, the 'Mag Day IT Manager has' access to the IT Admin account credentials which are stored in the history. This approach lacks the structure "
+            "System and non-human accounts are tracked and managed informally. While processes around these accounts have been established "
+            "and passwords are sometimes stored in a vault management system, the process lacks consistency "
+            "and formalization. The password handling procedures are not well-documented, and IT staff rely on informal "
+            "knowledge sharing to manage these credentials. This approach lacks the structure "
             "and controls needed for secure credential management, creating potential security vulnerabilities and accountability gaps."
         ),
         recommendation=(
-            "Formalize and enhance the management of generic and privileged non-human accounts: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Complete a comprehensive inventory of generic accounts, including purpose, access level, and management practices "
             "2. Deploy secure credential management tools (such as CyberArk, Secret Server, or Keeper) "
             "3. Establish policies for justification, approval, credential rotation, and secure vault storage "
@@ -295,8 +269,7 @@ GAP_EXAMPLES = [
             "6. Periodically review generic account usage, confirming adherence to procedures and continued business justification "
             "7. Implement automated notification of password changes and establish credential rotation schedules "
             "8. Train personnel on credential management policies and secure handling practices"
-        ),
-        application="Azure"
+        )
     ),
     
     # Monthly Administrator Activity Monitoring - Gap
@@ -314,7 +287,7 @@ GAP_EXAMPLES = [
             "and access control alterations, may go undetected, creating significant security and data integrity risks."
         ),
         recommendation=(
-            "Establish a formal monthly administrator activity review process with clear management oversight: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Establish a formal, documented procedure for monthly reviews of NetSuite administrator activity logs "
             "2. Identify and designate specific individuals responsible for generating activity log reports and those responsible for reviewing them "
             "3. Implement a process to capture comprehensive logs of all administrator activities, including direct data changes, transactions, and other privileged actions "
@@ -343,7 +316,7 @@ GAP_EXAMPLES = [
             "email communications rather than a structured repository or ticketing system."
         ),
         recommendation=(
-            "Formalize and enhance the administrator activity monitoring process by: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Establish a formal, documented procedure for monthly reviews of administrator activity logs "
             "2. Identify and designate specific individuals responsible for generating activity log reports and those responsible for reviewing them "
             "3. Implement a process to capture comprehensive logs of all administrator activities, including direct data changes, transactions, and other privileged actions "
@@ -363,8 +336,6 @@ GAP_EXAMPLES = [
         gap_title="Absence of Annual Password Configuration Review Process for Non-SSO Systems",
         gap_description=(
             "Management does not perform periodic reviews of authentication configurations for non-SSO systems "
-            "including Bit.com, Shopify, JPMC, Web Fargo, and NetSuite (PharPlus), as required by the company's "
-            "information security policies. Though these systems have authentication capabilities, "
             "there is no formalized process to verify that password configurations in these systems align with the "
             "company's password policy requirements. No documentation exists to show that configurations are reviewed "
             "for minimum password length, complexity, expiration, and lockout settings. Without regular reviews, "
@@ -372,7 +343,7 @@ GAP_EXAMPLES = [
             "to weaker security controls and increased risk of unauthorized access."
         ),
         recommendation=(
-            "Establish a formal annual password configuration review process: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Develop a formal, documented procedure for annual reviews of password configurations for all non-SSO systems "
             "2. Create a standardized template to document each system's current password parameters, including minimum length, "
             "complexity, expiration, and lockout settings "
@@ -407,7 +378,7 @@ GAP_EXAMPLES = [
             "policy requirements."
         ),
         recommendation=(
-            "Formalize and enhance the existing password configuration review process by: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Develop a formal, documented procedure for annual reviews of password configurations for all non-SSO systems "
             "2. Create a standardized template to document each system's current password parameters, including minimum length, "
             "complexity, expiration, and lockout settings "
@@ -436,7 +407,7 @@ GAP_EXAMPLES = [
             "or approval. This increases the risk of unintended system disruptions and unauthorized changes."
         ),
         recommendation=(
-            "Implement a comprehensive change management process that includes: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Change request documentation with business justification "
             "2. Risk assessment of proposed changes "
             "3. Testing requirements appropriate to the change risk level "
@@ -458,7 +429,7 @@ GAP_EXAMPLES = [
             "responsible individuals."
         ),
         recommendation=(
-            "Enhance the interface monitoring capabilities by: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Implementing data validation checks for critical interfaces "
             "2. Creating performance baseline metrics and monitoring for deviations "
             "3. Configuring alerts to be sent to specific responsible teams/individuals "
@@ -479,7 +450,7 @@ GAP_EXAMPLES = [
             "is possible in a disaster scenario."
         ),
         recommendation=(
-            "Strengthen the backup management process by: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Implementing a quarterly schedule for comprehensive restoration testing "
             "2. Developing specific test scenarios that validate critical system functionality after restoration "
             "3. Documenting restoration procedures with specific step-by-step instructions "
@@ -500,7 +471,7 @@ GAP_EXAMPLES = [
             "ensure they are implemented within the organization."
         ),
         recommendation=(
-            "Enhance the SOC report review process by: "
+            "For the system(s) listed in column E, perform the following steps: "
             "1. Creating a standardized template for documenting review results, including vendor exceptions "
             "2. Implementing a process to assess the risk of each vendor exception to the organization "
             "3. Maintaining an inventory of required CUECs and mapping them to internal controls "
