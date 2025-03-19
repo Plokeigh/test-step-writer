@@ -251,7 +251,14 @@ The Gap Title should follow this format: "Absence of Formalized Process for [App
 
 The Gap Description should be structured in paragraphs like the examples, explaining what specifically is missing or inadequate in the current process compared to the control requirements. Reference specifics from the Current Process description.
 
-The Recommendation should begin with "For the system(s) listed in column E, perform the following steps: " followed by numbered steps (1, 2, 3, etc.) that are specific and actionable.
+The Recommendation should begin with "For the system(s) listed in column E, perform the following steps: " followed by an empty line, then numbered steps (1, 2, 3, etc.) that are specific and actionable. Include a blank line between each numbered step.
+
+For example, format the recommendation like this:
+For the system(s) listed in column E, perform the following steps: 
+
+1. First recommendation step.
+2. Second recommendation step.
+3. Third recommendation step.
 
 {example_text}
 
@@ -344,7 +351,10 @@ Your response should be tailored to match the style and format of the examples w
                     else:
                         gap_title = f"Absence of Formalized Process for {application} {control_name}"
                         gap_description = f"The current implementation of {control_name} for {application} does not meet the requirements specified in the control description. The current process relies on {current_process}, which lacks the formal documentation and structured approach required by the control objectives."
-                        recommendation = f"For the system(s) listed in column E, perform the following steps:\n1. Develop a formally documented {control_name} policy for {application}.\n2. Implement a standardized process with proper documentation and approvals.\n3. Establish formal reviews to ensure ongoing compliance with the control requirements."
+                        recommendation = f"For the system(s) listed in column E, perform the following steps:\n\n1. Develop a formally documented {control_name} policy for {application}.\n\n2. Implement a standardized process with proper documentation and approvals.\n\n3. Establish formal reviews to ensure ongoing compliance with the control requirements."
+            
+            # Format the recommendation to ensure proper line breaks between numbered steps
+            recommendation = self.format_recommendation(recommendation)
             
             # Cache the result
             result = (gap_title, gap_description, recommendation)
@@ -361,11 +371,83 @@ Your response should be tailored to match the style and format of the examples w
                 return (
                     example.gap_title.replace(example.application or "", application),
                     example.gap_description.replace(example.application or "", application),
-                    example.recommendation
+                    self.format_recommendation(example.recommendation)
                 )
             else:
                 return (
                     f"Absence of Formalized Process for {application} {control_name}",
                     f"The current implementation of {control_name} for {application} does not meet the requirements specified in the control description. The current process '{current_process}' has a {gap_status.lower()} status.",
-                    f"For the system(s) listed in column E, perform the following steps:\n1. Develop a formally documented {control_name} policy for {application}.\n2. Implement a standardized process with proper documentation and approvals.\n3. Establish formal reviews to ensure ongoing compliance with the control requirements."
+                    f"For the system(s) listed in column E, perform the following steps:\n\n1. Develop a formally documented {control_name} policy for {application}.\n\n2. Implement a standardized process with proper documentation and approvals.\n\n3. Establish formal reviews to ensure ongoing compliance with the control requirements."
                 ) 
+                
+    def format_recommendation(self, recommendation: str) -> str:
+        """
+        Format the recommendation to ensure proper line breaks between numbered steps and 
+        an empty line after the intro phrase.
+        
+        Args:
+            recommendation: The recommendation text to format
+            
+        Returns:
+            Properly formatted recommendation
+        """
+        try:
+            # Check if recommendation already contains the intro phrase
+            intro_phrase = "For the system(s) listed in column E, perform the following steps:"
+            if intro_phrase in recommendation:
+                # First, split the recommendation into intro and steps
+                parts = recommendation.split(intro_phrase)
+                if len(parts) == 2:
+                    # Extract the steps part
+                    steps = parts[1].strip()
+                    
+                    # Ensure there's an empty line after the intro phrase
+                    if not steps.startswith("\n\n"):
+                        # Add an empty line if not already present
+                        steps = "\n\n" + steps
+                    
+                    # Format the numbered steps with line breaks
+                    formatted_steps = ""
+                    for line in steps.split("\n"):
+                        line = line.strip()
+                        if line and any(line.startswith(f"{i}.") for i in range(1, 20)):
+                            # Add a newline before numbered steps (except the first one)
+                            if formatted_steps and not formatted_steps.endswith("\n\n"):
+                                formatted_steps += "\n\n"
+                            formatted_steps += line
+                        elif line:
+                            formatted_steps += " " + line if formatted_steps else line
+                    
+                    # Reconstruct the recommendation
+                    return intro_phrase + formatted_steps
+                
+            # If we can't split properly or the intro phrase isn't found,
+            # try to format the numbered steps
+            lines = recommendation.split('\n')
+            formatted_lines = []
+            for i, line in enumerate(lines):
+                line = line.strip()
+                if line:
+                    if i > 0 and any(line.startswith(f"{num}.") for num in range(1, 20)):
+                        # Add an empty line before numbered steps
+                        if not formatted_lines[-1].strip() == '':
+                            formatted_lines.append('')
+                    formatted_lines.append(line)
+            
+            # Join the lines back together
+            formatted = '\n'.join(formatted_lines)
+            
+            # Check if the intro phrase is present but not followed by an empty line
+            intro_idx = formatted.find(intro_phrase)
+            if intro_idx >= 0:
+                end_of_intro = intro_idx + len(intro_phrase)
+                if end_of_intro < len(formatted) and formatted[end_of_intro:end_of_intro+2] != '\n\n':
+                    # Insert an empty line after the intro
+                    formatted = formatted[:end_of_intro] + '\n\n' + formatted[end_of_intro:].lstrip()
+            
+            return formatted
+        
+        except Exception as e:
+            self.logger.error(f"Error formatting recommendation: {str(e)}")
+            # Return the original recommendation if formatting fails
+            return recommendation 
