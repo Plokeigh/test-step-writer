@@ -939,13 +939,30 @@ def find_gap_examples_by_control_and_status(control_id: str, gap_status: str, ap
     Returns:
         A list of matching gap examples
     """
+    # Extract the base control ID (e.g., "APD-01" from "APD-01-Azure")
+    base_control_id = control_id.split('-')
+    if len(base_control_id) >= 2:
+        base_control_id = f"{base_control_id[0]}-{base_control_id[1]}"
+    else:
+        base_control_id = control_id
+        
+    # Normalize gap status
+    normalized_gap_status = gap_status.lower()
+    if "informal" in normalized_gap_status or "partially" in normalized_gap_status:
+        normalized_gap_status = "informal process"
+    else:
+        normalized_gap_status = "gap"
+        
     examples = [
         example for example in GAP_EXAMPLES 
-        if example.control_id == control_id and example.gap_status == gap_status
+        if example.control_id == base_control_id and example.gap_status == normalized_gap_status
     ]
     
     if application:
-        examples = [example for example in examples if example.application == application]
+        app_examples = [example for example in examples if example.application == application]
+        # If there are application-specific examples, return those. Otherwise, fall back to the general examples.
+        if app_examples:
+            return app_examples
         
     return examples
 
@@ -960,9 +977,19 @@ def find_gap_examples_by_control(control_id: str, application: Optional[str] = N
     Returns:
         A list of matching gap examples
     """
-    examples = [example for example in GAP_EXAMPLES if example.control_id == control_id]
+    # Extract the base control ID (e.g., "APD-01" from "APD-01-Azure")
+    base_control_id = control_id.split('-')
+    if len(base_control_id) >= 2:
+        base_control_id = f"{base_control_id[0]}-{base_control_id[1]}"
+    else:
+        base_control_id = control_id
+        
+    examples = [example for example in GAP_EXAMPLES if example.control_id == base_control_id]
     
     if application:
-        examples = [example for example in examples if example.application == application]
+        app_examples = [example for example in examples if example.application == application]
+        # If there are application-specific examples, return those. Otherwise, fall back to the general examples.
+        if app_examples:
+            return app_examples
         
     return examples 

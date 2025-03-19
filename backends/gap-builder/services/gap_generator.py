@@ -196,12 +196,29 @@ class GapGenerator:
         if cache_key in self.cache:
             return self.cache[cache_key]
             
+        # Extract the base control ID (e.g., "APD-01" from "APD-01-Azure")
+        base_control_id = control_id.split('-')
+        if len(base_control_id) >= 2:
+            base_control_id = f"{base_control_id[0]}-{base_control_id[1]}"
+        else:
+            base_control_id = control_id
+            
+        # Normalize gap status to match examples in gap_definitions.py
+        normalized_gap_status = gap_status.lower()
+        if "informal" in normalized_gap_status or "partially" in normalized_gap_status:
+            normalized_gap_status = "informal process"
+        else:
+            normalized_gap_status = "gap"
+            
+        self.logger.debug(f"Looking for examples with base control ID: {base_control_id} and status: {normalized_gap_status}")
+            
         # Find examples for this control and gap status
-        examples = find_gap_examples_by_control_and_status(control_id, gap_status)
+        examples = find_gap_examples_by_control_and_status(base_control_id, normalized_gap_status)
         
         # If no exact match, get all examples for this control
         if not examples:
-            examples = find_gap_examples_by_control(control_id)
+            self.logger.debug(f"No exact status match, getting all examples for control: {base_control_id}")
+            examples = find_gap_examples_by_control(base_control_id)
             
         # Generate example text for the prompt
         example_text = ""
@@ -211,6 +228,8 @@ class GapGenerator:
                 example_text += f"Gap Title: {example.gap_title}\n"
                 example_text += f"Gap Description: {example.gap_description}\n"
                 example_text += f"Recommendation: {example.recommendation}\n\n"
+        else:
+            self.logger.warning(f"No examples found for control ID: {base_control_id}")
         
         # Build the prompt for OpenAI
         prompt = f"""
@@ -224,13 +243,15 @@ Control Information:
 - Current Process: {current_process}
 - Gap Status: {gap_status}
 
-Based on the Control Information, please generate a concise Gap Title, a detailed Gap Description, and a specific Recommendation. 
+Based on the Control Information, please generate a concise Gap Title, a detailed Gap Description, and a specific Recommendation.
 
-The Gap Title should be a brief (1-2 line) summary of the gap.
+IMPORTANT: Your response MUST closely match the style, format, language, and length of the examples provided. DO NOT use asterisks (***) in your response.
 
-The Gap Description should explain what specifically is missing or inadequate in the current process compared to the control requirements. It should reference specifics from the Current Process description and explain why it doesn't meet the Control Description requirements.
+The Gap Title should follow this format: "Absence of Formalized Process for [Application] [Control Name]" or "Informal [Control Name] Process for [Application]", depending on the gap status.
 
-The Recommendation should provide specific, actionable steps to remediate the gap.
+The Gap Description should be structured in paragraphs like the examples, explaining what specifically is missing or inadequate in the current process compared to the control requirements. Reference specifics from the Current Process description.
+
+The Recommendation should begin with "For the system(s) listed in column E, perform the following steps: " followed by numbered steps (1, 2, 3, etc.) that are specific and actionable.
 
 {example_text}
 
@@ -255,14 +276,17 @@ Your response should be tailored to match the style and format of the examples w
             response = openai.ChatCompletion.create(
                 engine=deployment_name,
                 messages=[
-                    {"role": "system", "content": "You are an IT audit expert who specializes in IT General Controls (ITGC). You provide detailed gap assessments and remediation recommendations."},
+                    {"role": "system", "content": "You are an IT audit expert who specializes in IT General Controls (ITGC). You provide detailed gap assessments and remediation recommendations. Follow the examples exactly."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.2,
-                max_tokens=1000
+                temperature=0.1,  # Lower temperature for more consistent results
+                max_tokens=1200
             )
             
             response_text = response.choices[0].message['content'].strip()
+            
+            # Remove any asterisks from the response
+            response_text = response_text.replace("***", "").replace("**", "").replace("*", "")
             
             # Parse the response to extract the three components
             gap_title = ""
@@ -287,6 +311,20 @@ Your response should be tailored to match the style and format of the examples w
                 elif current_section == "recommendation":
                     recommendation += " " + line.strip() if recommendation else line.strip()
             
+            # If we have examples, try to match the format better
+            if examples and (not gap_title or not gap_description or not recommendation):
+                example = examples[0]
+                
+                # Use example as template if needed
+                if not gap_title:
+                    gap_title = example.gap_title.replace(example.application or "", application)
+                
+                if not gap_description:
+                    gap_description = example.gap_description.replace(example.application or "", application)
+                    
+                if not recommendation:
+                    recommendation = example.recommendation
+            
             # Verify we have all three parts
             if not (gap_title and gap_description and recommendation):
                 # Fallback: Split the response into three roughly equal parts
@@ -297,10 +335,16 @@ Your response should be tailored to match the style and format of the examples w
                     recommendation = parts[2].replace("Recommendation:", "").strip()
                 else:
                     # Last resort fallback
-                    total_length = len(response_text)
-                    gap_title = response_text[:int(total_length * 0.1)].strip()
-                    gap_description = response_text[int(total_length * 0.1):int(total_length * 0.5)].strip()
-                    recommendation = response_text[int(total_length * 0.5):].strip()
+                    self.logger.warning("Unable to properly parse OpenAI response, using fallback content.")
+                    if examples:
+                        example = examples[0]
+                        gap_title = example.gap_title.replace(example.application or "", application)
+                        gap_description = example.gap_description.replace(example.application or "", application)
+                        recommendation = example.recommendation
+                    else:
+                        gap_title = f"Absence of Formalized Process for {application} {control_name}"
+                        gap_description = f"The current implementation of {control_name} for {application} does not meet the requirements specified in the control description. The current process relies on {current_process}, which lacks the formal documentation and structured approach required by the control objectives."
+                        recommendation = f"For the system(s) listed in column E, perform the following steps:\n1. Develop a formally documented {control_name} policy for {application}.\n2. Implement a standardized process with proper documentation and approvals.\n3. Establish formal reviews to ensure ongoing compliance with the control requirements."
             
             # Cache the result
             result = (gap_title, gap_description, recommendation)
@@ -312,8 +356,16 @@ Your response should be tailored to match the style and format of the examples w
             self.logger.error(f"Error generating gap content: {str(e)}")
             
             # Fallback content in case the API call fails
-            return (
-                f"Gap in {control_name}",
-                f"The current implementation of {control_name} for {application} does not meet the requirements specified in the control description. The current process '{current_process}' has a {gap_status.lower()} status.",
-                f"Implement proper controls to address the {gap_status.lower()} status of {control_name}."
-            ) 
+            if examples:
+                example = examples[0]
+                return (
+                    example.gap_title.replace(example.application or "", application),
+                    example.gap_description.replace(example.application or "", application),
+                    example.recommendation
+                )
+            else:
+                return (
+                    f"Absence of Formalized Process for {application} {control_name}",
+                    f"The current implementation of {control_name} for {application} does not meet the requirements specified in the control description. The current process '{current_process}' has a {gap_status.lower()} status.",
+                    f"For the system(s) listed in column E, perform the following steps:\n1. Develop a formally documented {control_name} policy for {application}.\n2. Implement a standardized process with proper documentation and approvals.\n3. Establish formal reviews to ensure ongoing compliance with the control requirements."
+                ) 
