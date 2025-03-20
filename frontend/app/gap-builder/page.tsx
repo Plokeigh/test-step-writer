@@ -71,7 +71,7 @@ export default function GapBuilder() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label htmlFor="file" className="block text-sm font-medium text-gray-700">
-                Upload Excel Template
+                Upload Excel File
               </label>
               <input
                 type="file"
