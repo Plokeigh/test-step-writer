@@ -32,6 +32,20 @@ class Control:
     def __post_init__(self):
         if self.scoping_headers is None:
             self.scoping_headers = []
+        
+        # Process any semicolon-separated headers in the scoping_headers list
+        # This ensures that headers like "Role Modification Capability; Role Review"
+        # are properly expanded into separate entries
+        processed_headers = []
+        for header in self.scoping_headers:
+            if isinstance(header, str) and ";" in header:
+                # Split the semicolon-separated header into individual headers
+                for sub_header in header.split(";"):
+                    processed_headers.append(sub_header.strip())
+            else:
+                processed_headers.append(header)
+        
+        self.scoping_headers = processed_headers
 
 # Define standard controls based on the mapping table
 STANDARD_CONTROLS = [
@@ -131,7 +145,7 @@ STANDARD_CONTROLS = [
         control_type="IT-dependent manual",
         nature="Detective",
         frequency="Annually",
-        scoping_headers=["Role Modification Capability"],
+        scoping_headers=["Role Modification Capability; Role Review"],
         evaluation_criteria="Must start with 'Yes;'"
     ),
 
@@ -149,7 +163,7 @@ STANDARD_CONTROLS = [
         control_type="IT-dependent manual",
         nature="Detective",
         frequency="Annually",
-        scoping_headers=["Role Modification Capability"],
+        scoping_headers=["Role Modification Capability; Role Review"],
         evaluation_criteria="Must start with 'Yes;'"
     ),
 

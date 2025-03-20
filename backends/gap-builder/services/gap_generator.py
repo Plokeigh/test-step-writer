@@ -62,6 +62,19 @@ class GapGenerator:
         self.header_font = Font(bold=True)
         self.wrap_text_alignment = Alignment(wrap_text=True, vertical='top')
         
+    def apply_excel_formatting(self, cell, value):
+        """Apply proper formatting to Excel cell with special handling for line breaks"""
+        # Ensure line breaks are preserved in Excel
+        if isinstance(value, str) and ('\n' in value or '\r\n' in value):
+            # Replace all line breaks with Excel's line feed character (ASCII 10)
+            formatted_value = value.replace('\r\n', '\n')
+            cell.value = formatted_value
+        else:
+            cell.value = value
+            
+        # Apply text wrapping
+        cell.alignment = self.wrap_text_alignment
+        
     def process_template(self, input_file: str) -> openpyxl.Workbook:
         """
         Process the input template and generate gaps and recommendations.
@@ -136,14 +149,9 @@ class GapGenerator:
                 )
                 
                 # Update the cells with generated content
-                gap_title_cell.value = gap_title
-                gap_desc_cell.value = gap_description
-                recommendation_cell.value = recommendation
-                
-                # Apply formatting
-                gap_title_cell.alignment = self.wrap_text_alignment
-                gap_desc_cell.alignment = self.wrap_text_alignment
-                recommendation_cell.alignment = self.wrap_text_alignment
+                self.apply_excel_formatting(gap_title_cell, gap_title)
+                self.apply_excel_formatting(gap_desc_cell, gap_description)
+                self.apply_excel_formatting(recommendation_cell, recommendation)
                 
             # Auto-adjust column widths for better readability
             for col in range(1, sheet.max_column + 1):
@@ -253,8 +261,9 @@ The Gap Description should be structured in paragraphs like the examples, explai
 
 The Recommendation should begin with "For the system(s) listed in column E, perform the following steps: " followed by an empty line, then numbered steps (1, 2, 3, etc.) that are specific and actionable. Include a blank line between each numbered step.
 
-For example, format the recommendation like this:
-For the system(s) listed in column E, perform the following steps: 
+For example, format the recommendation EXACTLY like this:
+
+For the system(s) listed in column E, perform the following steps:
 
 1. First recommendation step.
 2. Second recommendation step.
@@ -350,11 +359,40 @@ Your response should be tailored to match the style and format of the examples w
                         recommendation = example.recommendation
                     else:
                         gap_title = f"Absence of Formalized Process for {application} {control_name}"
-                        gap_description = f"The current implementation of {control_name} for {application} does not meet the requirements specified in the control description. The current process relies on {current_process}, which lacks the formal documentation and structured approach required by the control objectives."
-                        recommendation = f"For the system(s) listed in column E, perform the following steps:\n\n1. Develop a formally documented {control_name} policy for {application}.\n\n2. Implement a standardized process with proper documentation and approvals.\n\n3. Establish formal reviews to ensure ongoing compliance with the control requirements."
+                        gap_description = f"The current implementation of {control_name} for {application} does not meet the requirements specified in the control description. The current process '{current_process}' has a {gap_status.lower()} status."
+                        recommendation = self.format_recommendation(f"For the system(s) listed in column E, perform the following steps:\r\n\r\n1. Develop a formally documented {control_name} policy for {application}.\r\n2. Implement a standardized process with proper documentation and approvals.\r\n3. Establish formal reviews to ensure ongoing compliance with the control requirements.")
             
             # Format the recommendation to ensure proper line breaks between numbered steps
             recommendation = self.format_recommendation(recommendation)
+            
+            # Final sanity check to ensure the format is correct
+            if "For the system(s) listed in column E, perform the following steps:" in recommendation:
+                # Get intro and steps parts
+                intro_phrase = "For the system(s) listed in column E, perform the following steps:"
+                parts = recommendation.split(intro_phrase, 1)
+                if len(parts) == 2:
+                    steps = parts[1].strip()
+                    
+                    # Add a single blank line after the intro
+                    formatted_rec = f"{intro_phrase}\n\n"  # Use \n for Excel compatibility
+                    
+                    # Process each line, ensuring each numbered step is on its own line
+                    import re
+                    
+                    # First, make sure each number starts on a new line
+                    for i in range(1, 20):  # Handle steps 1-19
+                        steps = re.sub(f"([^\n]){i}\\.", f"\n{i}.", steps)
+                    
+                    # Split the steps by line breaks
+                    step_lines = re.split(r'\r\n|\n', steps)
+                    for line in step_lines:
+                        line = line.strip()
+                        if line and re.match(r'^\d+\.', line):
+                            # Only add numbered lines
+                            formatted_rec += f"{line}\n"
+                    
+                    # Use the reformatted recommendation - with \n line breaks for Excel
+                    recommendation = formatted_rec
             
             # Cache the result
             result = (gap_title, gap_description, recommendation)
@@ -377,8 +415,8 @@ Your response should be tailored to match the style and format of the examples w
                 return (
                     f"Absence of Formalized Process for {application} {control_name}",
                     f"The current implementation of {control_name} for {application} does not meet the requirements specified in the control description. The current process '{current_process}' has a {gap_status.lower()} status.",
-                    f"For the system(s) listed in column E, perform the following steps:\n\n1. Develop a formally documented {control_name} policy for {application}.\n\n2. Implement a standardized process with proper documentation and approvals.\n\n3. Establish formal reviews to ensure ongoing compliance with the control requirements."
-                ) 
+                    self.format_recommendation(f"For the system(s) listed in column E, perform the following steps:\r\n\r\n1. Develop a formally documented {control_name} policy for {application}.\r\n2. Implement a standardized process with proper documentation and approvals.\r\n3. Establish formal reviews to ensure ongoing compliance with the control requirements.")
+                )
                 
     def format_recommendation(self, recommendation: str) -> str:
         """
@@ -392,62 +430,79 @@ Your response should be tailored to match the style and format of the examples w
             Properly formatted recommendation
         """
         try:
-            # Check if recommendation already contains the intro phrase
+            # The intro phrase we're looking for
             intro_phrase = "For the system(s) listed in column E, perform the following steps:"
-            if intro_phrase in recommendation:
-                # First, split the recommendation into intro and steps
-                parts = recommendation.split(intro_phrase)
-                if len(parts) == 2:
-                    # Extract the steps part
-                    steps = parts[1].strip()
-                    
-                    # Ensure there's an empty line after the intro phrase
-                    if not steps.startswith("\n\n"):
-                        # Add an empty line if not already present
-                        steps = "\n\n" + steps
-                    
-                    # Format the numbered steps with line breaks
-                    formatted_steps = ""
-                    for line in steps.split("\n"):
-                        line = line.strip()
-                        if line and any(line.startswith(f"{i}.") for i in range(1, 20)):
-                            # Add a newline before numbered steps (except the first one)
-                            if formatted_steps and not formatted_steps.endswith("\n\n"):
-                                formatted_steps += "\n\n"
-                            formatted_steps += line
-                        elif line:
-                            formatted_steps += " " + line if formatted_steps else line
-                    
-                    # Reconstruct the recommendation
-                    return intro_phrase + formatted_steps
+            
+            # If the phrase isn't in the recommendation, return it unchanged
+            if intro_phrase not in recommendation:
+                return recommendation
                 
-            # If we can't split properly or the intro phrase isn't found,
-            # try to format the numbered steps
-            lines = recommendation.split('\n')
-            formatted_lines = []
-            for i, line in enumerate(lines):
+            # Split by the intro phrase
+            parts = recommendation.split(intro_phrase, 1)
+            if len(parts) != 2:
+                return recommendation
+                
+            steps_part = parts[1].strip()
+            
+            # Start with a clean formatted recommendation
+            formatted_rec = f"{intro_phrase}\n\n"  # One blank line after intro
+            
+            # Simplest and most reliable approach: 
+            # Use regex to handle each numbered step
+            import re
+            
+            # First normalize line breaks
+            steps_part = steps_part.replace('\r\n', '\n')
+            
+            # Add line breaks before numbers if they don't already have them
+            for i in range(1, 20):  # Handle up to 19 steps
+                # If a number isn't preceded by a line break, add one
+                steps_part = re.sub(f'([^\n]){i}\\.', f'\\1\n{i}.', steps_part)
+            
+            # Make sure first step has a line break if needed
+            if steps_part and not steps_part.startswith('\n'):
+                steps_part = '\n' + steps_part
+                
+            # Extract each numbered step
+            numbered_steps = []
+            lines = steps_part.split('\n')
+            for line in lines:
                 line = line.strip()
-                if line:
-                    if i > 0 and any(line.startswith(f"{num}.") for num in range(1, 20)):
-                        # Add an empty line before numbered steps
-                        if not formatted_lines[-1].strip() == '':
-                            formatted_lines.append('')
-                    formatted_lines.append(line)
+                if line and re.match(r'^\d+\.', line):
+                    numbered_steps.append(line)
             
-            # Join the lines back together
-            formatted = '\n'.join(formatted_lines)
+            # Add each step on its own line
+            for step in numbered_steps:
+                formatted_rec += f"{step}\n"
+                
+            return formatted_rec
             
-            # Check if the intro phrase is present but not followed by an empty line
-            intro_idx = formatted.find(intro_phrase)
-            if intro_idx >= 0:
-                end_of_intro = intro_idx + len(intro_phrase)
-                if end_of_intro < len(formatted) and formatted[end_of_intro:end_of_intro+2] != '\n\n':
-                    # Insert an empty line after the intro
-                    formatted = formatted[:end_of_intro] + '\n\n' + formatted[end_of_intro:].lstrip()
-            
-            return formatted
-        
         except Exception as e:
             self.logger.error(f"Error formatting recommendation: {str(e)}")
-            # Return the original recommendation if formatting fails
-            return recommendation 
+            
+            # As a last resort fallback, use a very simple regex approach
+            try:
+                # Split by intro phrase
+                intro_phrase = "For the system(s) listed in column E, perform the following steps:"
+                if intro_phrase not in recommendation:
+                    return recommendation
+                    
+                parts = recommendation.split(intro_phrase, 1)
+                steps = parts[1] if len(parts) > 1 else ""
+                
+                # Simple regex to ensure each number starts on a new line
+                import re
+                formatted_steps = ""
+                for i in range(1, 20):  # Handle up to 19 steps
+                    pattern = f"{i}\\.(.*?)(?={i+1}\\.|$)"
+                    matches = re.findall(pattern, steps, re.DOTALL)
+                    if matches:
+                        for match in matches:
+                            formatted_steps += f"{i}. {match.strip()}\n"
+                
+                return f"{intro_phrase}\n\n{formatted_steps}"
+                
+            except Exception as inner_e:
+                self.logger.error(f"Error in fallback formatting: {str(inner_e)}")
+                # Very last resort: just ensure there's a line break after each period
+                return recommendation.replace('. ', '.\n') 

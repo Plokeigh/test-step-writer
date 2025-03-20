@@ -5,6 +5,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from models.control_definitions import Control, STANDARD_CONTROLS
 from typing import List
+from openpyxl.worksheet.datavalidation import DataValidation
 
 # Define the headers we care about from the scoping document
 RELEVANT_HEADERS = {
@@ -13,6 +14,7 @@ RELEVANT_HEADERS = {
     "Access Provisioning Process",
     "Access Removal Process",
     "Role Modification Capability",
+    "Role Review",
     "System Accounts",
     "Credential Storage for System Accounts",
     "System Account Credential Access",
@@ -30,7 +32,9 @@ RELEVANT_HEADERS = {
     "Backup Frequency",
     "Backup Types",
     "Backup Failure Resolution",
-    "SOC report Review"
+    "SOC report Review",
+    "Segregation of Duties",
+    "Change Access"
 }
 
 class MatrixGenerator:
@@ -332,11 +336,27 @@ class MatrixGenerator:
             "Control ID",
             "Short Name",
             "Control Description",
+            "Application",
             "Key / Non-Key",
             "Manual / IT-dependent manual / Automated",
             "Preventative / Detective",
-            "Frequency"
+            "Frequency",
+            "Current Process",
+            "Gap Status",
+            "Gap Title",
+            "Gap Description",
+            "Recommendation"
         ]
+
+        # Create data validation for Gap Status column (column 10)
+        gap_status_dv = DataValidation(type="list", formula1='"No Gap,Gap,Informal Process"', allow_blank=True)
+        ws.add_data_validation(gap_status_dv)
+        
+        # Apply data validation to Gap Status column in all rows we might use
+        # Excel has a maximum of 1048576 rows, but we'll use a more reasonable number
+        for i in range(2, 5000):  # Start from row 2 (after headers) to row 5000
+            gap_status_cell = f"J{i}"  # Column J is the 10th column (Gap Status)
+            gap_status_dv.add(gap_status_cell)
 
         self._setup_headers(ws, headers)
         current_row = 2
@@ -372,14 +392,18 @@ class MatrixGenerator:
                 # Find out which scoping headers are relevant for this control
                 relevant_headers = []
                 for variant in control_variants:
-                    relevant_headers.extend(variant.scoping_headers)
+                    # Add each scoping header, handling both string and list formats
+                    for header_item in variant.scoping_headers:
+                        if header_item not in relevant_headers:
+                            relevant_headers.append(header_item)
                 
                 # Check if any relevant scoping fields contain flags
                 control_has_flags = False
                 for header in relevant_headers:
-                    header_key = header.lower().replace(" ", "_").replace(" ", "_")
+                    # Convert header to a dictionary key format consistently
+                    header_key = header.lower().replace(" ", "_")
                     if header_key in system and isinstance(system[header_key], str) and "*Flag" in system[header_key]:
-                        self.logger.info(f"Flag found in {header_key} for control {variant.control_id}")
+                        self.logger.info(f"Flag found in {header_key} for control {control_variants[0].control_id}")
                         control_has_flags = True
                         break
                 
@@ -403,6 +427,7 @@ class MatrixGenerator:
                         system['name'], 
                         is_selected, 
                         is_na,
+                        system=system,  # Pass the entire system dictionary
                         has_flag=control_has_flags or description_has_flag  # Pass explicit flag status
                     )
                     current_row += 1
@@ -422,21 +447,70 @@ class MatrixGenerator:
             cell.border = self.border
             ws.column_dimensions[chr(64 + col)].width = 20
 
-    def _add_control_row(self, ws, row, control, description, system_name, is_selected, is_na, has_flag=False):
+    def _add_control_row(self, ws, row, control, description, system_name, is_selected, is_na, system=None, has_flag=False):
         """Add a control row with formatting"""
         try:
             # Create system-specific control ID
             name_suffix = str(system_name).replace(" ", "") if system_name else "Unknown"
             control_id = f"{control.control_id}-{name_suffix}"
             
+            # Get the current process information from the system scoping details
+            current_process = ""
+            
+            # Log the control and its scoping headers for debugging
+            self.logger.info(f"Processing control {control_id} with scoping headers: {control.scoping_headers}")
+            
+            # Collect all the relevant scoping information
+            scoping_info = []
+            if system:  # Check if system info was provided
+                # For logging, show all available system keys
+                system_keys = list(system.keys())
+                self.logger.info(f"Available system keys for {system_name}: {system_keys}")
+                
+                # Process each header in the list of headers for this control
+                for header_item in control.scoping_headers:
+                    self.logger.info(f"Processing header item: {header_item}")
+                    
+                    # Convert header to a dictionary key format
+                    header_key = header_item.lower().replace(" ", "_")
+                    
+                    # Check if this key exists in the system dictionary
+                    if header_key in system:
+                        value = system[header_key]
+                        if value:  # Only add if there's a value
+                            self.logger.info(f"Found value for {header_key}: {value[:50]}...")
+                            scoping_info.append(f"{header_item}: {value}")
+                        else:
+                            self.logger.info(f"Empty value for {header_key}")
+                    else:
+                        self.logger.info(f"Header key '{header_key}' not found in system info for {system_name}")
+                        
+                        # Check if the header might be formatted differently in the system dictionary
+                        potential_matches = [k for k in system.keys() if header_key in k or k in header_key]
+                        if potential_matches:
+                            self.logger.info(f"Potential matches for {header_key}: {potential_matches}")
+            
+            # Join with periods between items if there are any
+            if scoping_info:
+                self.logger.info(f"Final scoping info for {control_id}: {scoping_info}")
+                current_process = ". ".join(scoping_info)
+            else:
+                self.logger.info(f"No scoping info found for {control_id}")
+            
             data = [
                 control_id,
                 control.short_name,
                 description,
+                system_name,  # Application column
                 "Key" if control.key_control else "Non-key",
                 control.control_type,
                 control.nature,
-                control.frequency
+                control.frequency,
+                current_process,  # Current Process column
+                "",  # Gap Status (will be empty with data validation)
+                "",  # Gap Title
+                "",  # Gap Description
+                ""   # Recommendation
             ]
 
             # Also check if any cell in the data contains "*Flag" as a backup detection
