@@ -52,6 +52,36 @@ export default function RCMBuilder() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">RCM Builder</h1>
+        
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">How to Use</h2>
+          <div className="space-y-4 text-gray-600">
+            <p className="font-medium text-gray-900">Preparing your scoping document:</p>
+            <ol className="list-decimal list-inside space-y-2">
+              <li>Review the scoping document and make sure that the information in each field is accurate</li>
+              <li>Wherever you identify a gap, add "<span className="font-bold">*Flag</span>" at the beginning of the cell in the scoping document (i.e., *Flag No; the system logs are not reviewed unless there is an incident)</li>
+              <li>Save the document before uploading</li>
+            </ol>
+
+            <p className="font-medium text-gray-900 mt-4">Processing your document:</p>
+            <ol className="list-decimal list-inside space-y-2">
+              <li>Upload your prepared IT Scoping document by clicking the "Choose File" button below</li>
+              <li>Once the builder processes the IT Scoping document, your RCM will automatically download</li>
+            </ol>
+
+            <p className="font-medium text-gray-900 mt-4">Working with the generated RCM:</p>
+            <ol className="list-decimal list-inside space-y-2">
+              <li>Open the downloaded document and note that the rows are color coded:</li>
+              <ul className="list-disc list-inside ml-6 space-y-1">
+                <li><span className="text-green-600 font-medium">Green</span>: The process is in place without any gaps</li>
+                <li><span className="text-yellow-600 font-medium">Yellow</span>: The control is N/A and can be deleted (always double check before deleting)</li>
+                <li><span className="text-red-600 font-medium">Red</span>: You added a *Flag in the scoping document indicating a control gap</li>
+              </ul>
+              <li>Update Column J to indicate if there is a gap, informal process, or no gap as this field is required for the Gaps Builder tool</li>
+            </ol>
+          </div>
+        </div>
+
         <div className="bg-white rounded-lg shadow-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">

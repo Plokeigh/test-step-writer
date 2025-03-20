@@ -55,12 +55,19 @@ export default function GapBuilder() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Gap Builder</h1>
         
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Generate ITGC Gap Analysis</h2>
-          <p className="text-gray-600 mb-6">
-            Upload your IT General Controls (ITGC) assessment template and this tool will automatically
-            generate gap descriptions and recommendations based on the control status.
-          </p>
-          
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">How to Use</h2>
+          <div className="space-y-4 text-gray-600">
+            <ol className="list-decimal list-inside space-y-2">
+              <li>Upload the finalized RCM Builder document into the Gap Builder tool by clicking on the "Choose File". Be sure to not add any rows or modify the header names in the RCM as this will prevent the tool from working.</li>
+              <li>Click the "Generate Gap Analysis" button to start processing the RCM.</li>
+              <li>After a short period of time a version of the RCM you uploaded with updated gap-related columns will automatically download.</li>
+              <li>Review columns K-M for accuracy and make updates as appropriate.</li>
+            </ol>
+            <p className="font-medium text-gray-900 mt-4">Congratulations you have succesfully completed your AI IT SOX Diagnostics journey and your delverables are ready to submit to the client!</p>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label htmlFor="file" className="block text-sm font-medium text-gray-700">
@@ -98,41 +105,6 @@ export default function GapBuilder() {
               {status}
             </div>
           )}
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">How It Works</h2>
-          <div className="space-y-4">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 bg-red-100 rounded-full p-2">
-                <span className="text-red-600 text-xl">1</span>
-              </div>
-              <div className="ml-4">
-                <h3 className="font-medium text-gray-900">Upload your template</h3>
-                <p className="text-gray-600">Upload your Excel template with control assessment information.</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start">
-              <div className="flex-shrink-0 bg-red-100 rounded-full p-2">
-                <span className="text-red-600 text-xl">2</span>
-              </div>
-              <div className="ml-4">
-                <h3 className="font-medium text-gray-900">AI Gap Analysis</h3>
-                <p className="text-gray-600">Our AI analyzes your controls and generates tailored gap descriptions.</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start">
-              <div className="flex-shrink-0 bg-red-100 rounded-full p-2">
-                <span className="text-red-600 text-xl">3</span>
-              </div>
-              <div className="ml-4">
-                <h3 className="font-medium text-gray-900">Download Results</h3>
-                <p className="text-gray-600">Receive your enhanced Excel file with gap titles, descriptions, and recommendations.</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -334,7 +334,7 @@ class MatrixGenerator:
 
         headers = [
             "Control ID",
-            "Short Name",
+            "Control Name",
             "Control Description",
             "Application",
             "Key / Non-Key",

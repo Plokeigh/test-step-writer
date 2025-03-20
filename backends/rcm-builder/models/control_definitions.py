@@ -133,7 +133,7 @@ STANDARD_CONTROLS = [
 
     Control(
         control_id="APD-03",
-        short_name="Annual Role Permissions Review",
+        short_name="Annual Role Permissions Review 1",
         description=(
             "Annually, the [INSERT SYSTEM NAME] admin team performs a review of roles within "
             "[INSERT SYSTEM NAME] to ensure the permissions associated with each role are "
@@ -151,7 +151,7 @@ STANDARD_CONTROLS = [
 
     Control(
         control_id="APD-03",
-        short_name="Annual Role Permissions Review",
+        short_name="Annual Role Permissions Review 2",
         description=(
             "Annually, [INSERT SYSTEM NAME] admin team performs a review over all "
             "permissions assigned to user roles within NetSuite. The list of permissions is reviewed "
@@ -285,7 +285,7 @@ STANDARD_CONTROLS = [
     ),
     Control(
         control_id="CM-03",
-        short_name="Quarterly Change Review",
+        short_name="Quarterly Change Review 1",
         description=(
             "Quarterly, [INSERT ADMIN] reviews the [INSERT SYSTEM NAME] audit trail to analyze "
             "all changes deployed to production and validate whether each change was appropriately "
@@ -302,7 +302,7 @@ STANDARD_CONTROLS = [
 
     Control(
         control_id="CM-03",
-        short_name="Quarterly Change Review",
+        short_name="Quarterly Change Review 2",
         description=(
             "On a quarterly basis, [INSERT ADMIN] reviews all [INSERT SYSTEM NAME} changes deployed to production for "
             "appropriateness by identifying the associated ticket, ensuring the change was tested and "
