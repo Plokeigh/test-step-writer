@@ -58,7 +58,7 @@ export default function GapBuilder() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">How to Use</h2>
           <div className="space-y-4 text-gray-600">
             <ol className="list-decimal list-inside space-y-2">
-              <li>Upload the finalized RCM Builder document into the Gap Builder tool by clicking on the "Choose File". Be sure to not add any rows or modify the header names in the RCM as this will prevent the tool from working.</li>
+              <li>Upload the finalized RCM Builder document into the Gap Builder tool by clicking on the "Choose File" button below. Be sure to not add any rows or modify the header names in the RCM as this will prevent the tool from working.</li>
               <li>Click the "Generate Gap Analysis" button to start processing the RCM.</li>
               <li>After a short period of time a version of the RCM you uploaded with updated gap-related columns will automatically download.</li>
               <li>Review columns K-M for accuracy and make updates as appropriate.</li>
