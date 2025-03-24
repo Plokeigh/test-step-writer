@@ -251,23 +251,28 @@ Control Information:
 - Current Process: {current_process}
 - Gap Status: {gap_status}
 
-Based on the Control Information, please generate a concise Gap Title, a detailed Gap Description, and a specific Recommendation.
+CRITICAL: Your response MUST EXACTLY match the style, format, language, and length of the examples provided. Analyze the examples carefully and mirror their structure, terminology, and tone precisely. DO NOT use asterisks (***) in your response.
 
-IMPORTANT: Your response MUST closely match the style, format, language, and length of the examples provided. DO NOT use asterisks (***) in your response.
+### Gap Title Format:
+- Must follow EXACTLY the pattern in the examples: "Absence of [Control] Process for [Application]" or "Informal [Control] Process for [Application]"
+- Keep to similar length as examples (5-10 words)
+- Use the same terminology and phrasing conventions seen in the examples
 
-The Gap Title should follow this format: "Absence of Formalized Process for [Application] [Control Name]" or "Informal [Control Name] Process for [Application]", depending on the gap status.
+### Gap Description Format:
+- Match the exact paragraph structure from the examples: 4-5 sentences total
+- First sentence should establish the issue in the same style as examples
+- Middle sentences should detail specific deficiencies
+- Final sentence should describe the risk created, using similar language to examples
+- Use phrases like "lack of formal process", "no standardized procedures", "absence of documentation" as seen in examples
+- Mirror the formal, objective tone of the examples exactly
 
-The Gap Description should be structured in paragraphs like the examples, explaining what specifically is missing or inadequate in the current process compared to the control requirements. Reference specifics from the Current Process description.
-
-The Recommendation should begin with "For the system(s) listed in column E, perform the following steps: " followed by an empty line, then numbered steps (1, 2, 3, etc.) that are specific and actionable. Include a blank line between each numbered step.
-
-For example, format the recommendation EXACTLY like this:
-
-For the system(s) listed in column E, perform the following steps:
-
-1. First recommendation step.
-2. Second recommendation step.
-3. Third recommendation step.
+### Recommendation Format:
+- Begin with EXACTLY: "For the system(s) listed in column E, perform the following steps:"
+- Follow with 5-8 numbered steps (count the steps in the examples and provide a similar number)
+- Each step must begin with an action verb and match the conciseness of the examples
+- Steps should be approximately the same length as those in the examples
+- Include exact formatting with a blank line after the introduction and no blank lines between steps
+- Use similar verbs and phrases as seen in the examples: "Establish", "Implement", "Develop", "Create", etc.
 
 {example_text}
 
@@ -276,7 +281,7 @@ Gap Title: [Your generated gap title]
 Gap Description: [Your generated gap description]
 Recommendation: [Your generated recommendation]
 
-Your response should be tailored to match the style and format of the examples while being specific to this control and application.
+Study the examples closely and ensure your response directly mirrors their format, length, and language patterns.
 """
         
         try:
@@ -388,8 +393,10 @@ Your response should be tailored to match the style and format of the examples w
                     for line in step_lines:
                         line = line.strip()
                         if line and re.match(r'^\d+\.', line):
+                            # Add "REVIEW" before the number
+                            modified_line = re.sub(r'^(\d+)(\.)', r'REVIEW\1\2', line)
                             # Only add numbered lines
-                            formatted_rec += f"{line}\n"
+                            formatted_rec += f"{modified_line}\n"
                     
                     # Use the reformatted recommendation - with \n line breaks for Excel
                     recommendation = formatted_rec
@@ -469,7 +476,9 @@ Your response should be tailored to match the style and format of the examples w
             for line in lines:
                 line = line.strip()
                 if line and re.match(r'^\d+\.', line):
-                    numbered_steps.append(line)
+                    # Replace the number with "REVIEW" + number
+                    modified_line = re.sub(r'^(\d+)(\.)', r'REVIEW\1\2', line)
+                    numbered_steps.append(modified_line)
             
             # Add each step on its own line
             for step in numbered_steps:
@@ -498,7 +507,7 @@ Your response should be tailored to match the style and format of the examples w
                     matches = re.findall(pattern, steps, re.DOTALL)
                     if matches:
                         for match in matches:
-                            formatted_steps += f"{i}. {match.strip()}\n"
+                            formatted_steps += f"REVIEW{i}. {match.strip()}\n"
                 
                 return f"{intro_phrase}\n\n{formatted_steps}"
                 
