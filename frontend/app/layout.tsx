@@ -42,6 +42,9 @@ export default function RootLayout({
                 <Link href="/rcm-testing" className="px-3 py-2 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200 font-medium transition-colors">
                   RCM Testing Generator
                 </Link>
+                <Link href="/rcm-converter" className="px-3 py-2 rounded-md bg-teal-100 text-teal-700 hover:bg-teal-200 font-medium transition-colors">
+                  RCM Converter
+                </Link>
               </div>
             </div>
           </div>

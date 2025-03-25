@@ -39,6 +39,13 @@ export default function Home() {
       path: '/rcm-testing',
       icon: '📊',
       color: 'from-purple-500 to-purple-600'
+    },
+    {
+      name: 'RCM Converter',
+      description: 'Convert a detailed Risk Control Matrix (RCM) into a high-level view by extracting control information and mapping it to a template.',
+      path: '/rcm-converter',
+      icon: '📈',
+      color: 'from-teal-500 to-teal-600'
     }
   ];
 

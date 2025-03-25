@@ -1,0 +1,7 @@
+Mon 03/24/2025 11:26:24.09 - Starting RCM Converter... 
+Mon 03/24/2025 11:26:24.09 - Using Python: C:\Users\VincentWashburn\AppData\Local\Programs\Python\Python313\python.exe 
+Mon 03/24/2025 11:26:24.10 - Input file: C:\Users\VincentWashburn\tools-hub\frontend\uploads\1742829984056-935-FY25 Jade Bio IT RCM - RCM Converter.xlsx 
+Mon 03/24/2025 11:26:24.11 - Template file: C:\Users\VincentWashburn\tools-hub\backends\rcm-converter\templates\rcm-control-view.xlsx 
+Mon 03/24/2025 11:26:24.11 - Running converter script... 
+Successfully created high-level view: C:\Users\VincentWashburn\tools-hub\frontend\uploads\RCM-High-Level-View.xlsx
+Mon 03/24/2025 11:26:24.78 - Conversion completed successfully 
