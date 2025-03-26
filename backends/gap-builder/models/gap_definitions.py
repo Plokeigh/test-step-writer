@@ -306,8 +306,7 @@ GAP_EXAMPLES = [
         gap_title="Absence of Monthly Admin Activity Log Reviews for Bill.com",
         gap_description=(
             "Management does not perform periodic reviews of administrator activity logs within Bill.com, "
-            "despite the system having the capability to maintain and provide access to these logs through "
-            "the application user interface. "
+            "despite the system having the capability to generate these logs through the application user interface. "
             "There is no formalized process for generating, assessing, and documenting the review of administrative "
             "activities such as direct data changes, transactions, and other privileged actions performed within Bill.com. "
             "Without periodic reviews of administrator activity logs, there is limited ability to identify, "

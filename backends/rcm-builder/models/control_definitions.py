@@ -99,6 +99,22 @@ STANDARD_CONTROLS = [
         evaluation_criteria="New user/transfer provisioning process was described."
     ),
 
+        Control(
+        control_id="APD-01",
+        short_name="Access Provisioning",
+        description=(
+            "For [INSERT SYSTEM] access above standard or view-only roles, new access or changes to "
+            "existing user access are documented via ticket or email, are submitted by users' managers, "
+            "and are approved by the VP of IT or SVP of Finance prior to being provisioned by the [INSERT SYSTEM] administrators."
+        ),
+        key_control=True,
+        control_type="IT-dependent manual",
+        nature="Preventative",
+        frequency="Ad-Hoc",
+        scoping_headers=["Access Provisioning Process"],
+        evaluation_criteria="New user/transfer provisioning process was described."
+    ),
+
     Control(
         control_id="APD-02",
         short_name="Terminated User Access Removal -Hybrid",

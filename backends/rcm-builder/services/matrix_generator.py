@@ -113,6 +113,11 @@ class MatrixGenerator:
         8. DO NOT add explanatory details or examples that aren't in the base template
         9. DO NOT elaborate or expand on processes beyond what's in the template
         10. Return ONLY the description text, without any metadata or formatting
+        11. CRITICAL: NEVER use personal names in the description. Instead, use:
+           - Job titles (e.g., "IT Manager", "System Administrator")
+           - Team names (e.g., "IT team", "Security team")
+           - Role-based terms (e.g., "the administrator", "the reviewer")
+           - Generic terms (e.g., "management", "leadership")
 
         IMPORTANT:
         - Keep the same sentence structure as the template
@@ -122,6 +127,7 @@ class MatrixGenerator:
         - Maintain the exact same level of detail as the template
         - For [INSERT ADMIN], use the exact team/role specified in System Administration Responsibility
         - Maintain the core characteristics indicated in the control's short name (e.g., "Manual" vs "Automated")
+        - NEVER include personal names - use job titles, team names, or role-based terms instead
 
         Return only the customized control description text, with no additional formatting or labels.
         """
