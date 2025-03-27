@@ -339,6 +339,8 @@ class MatrixGenerator:
         ws.title = "Risk and Controls Matrix"
 
         headers = [
+            "Risk ID",
+            "Risk Description",
             "Control ID",
             "Control Name",
             "Control Description",
@@ -354,14 +356,14 @@ class MatrixGenerator:
             "Recommendation"
         ]
 
-        # Create data validation for Gap Status column (column 10)
+        # Create data validation for Gap Status column (column 12)
         gap_status_dv = DataValidation(type="list", formula1='"No Gap,Gap,Informal Process"', allow_blank=True)
         ws.add_data_validation(gap_status_dv)
         
         # Apply data validation to Gap Status column in all rows we might use
         # Excel has a maximum of 1048576 rows, but we'll use a more reasonable number
         for i in range(2, 5000):  # Start from row 2 (after headers) to row 5000
-            gap_status_cell = f"J{i}"  # Column J is the 10th column (Gap Status)
+            gap_status_cell = f"L{i}"  # Column L is the 12th column (Gap Status)
             gap_status_dv.add(gap_status_cell)
 
         self._setup_headers(ws, headers)
@@ -504,6 +506,8 @@ class MatrixGenerator:
                 self.logger.info(f"No scoping info found for {control_id}")
             
             data = [
+                control.risk_id,  # Risk ID
+                control.risk_description,  # Risk Description
                 control_id,
                 control.short_name,
                 description,

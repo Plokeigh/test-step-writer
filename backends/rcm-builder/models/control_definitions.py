@@ -12,6 +12,8 @@ class Control:
     frequency: str
     scoping_headers: List[str]
     evaluation_criteria: str
+    risk_id: str = ""
+    risk_description: str = ""
 
     @staticmethod
     def select_control_variant(variants: List['Control'], scoping_info: str) -> 'Control':
@@ -63,7 +65,13 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Access Provisioning Process"],
-        evaluation_criteria="Approvals and formal automated access requesting process present."
+        evaluation_criteria="Approvals and formal automated access requesting process present.",
+        risk_id="R-IT-01",
+        risk_description=(
+            "There is a risk of unauthorized access to systems resulting in the inappropriate activity "
+            "like use, disclosure, modification, damage to or loss of financial transactions or data. "
+            "This may impact the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -79,7 +87,13 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Access Provisioning Process"],
-        evaluation_criteria="Approvals and formal manual access requesting process present."
+        evaluation_criteria="Approvals and formal manual access requesting process present.",
+        risk_id="R-IT-01",
+        risk_description=(
+            "There is a risk of unauthorized access to systems resulting in the inappropriate activity "
+            "like use, disclosure, modification, damage to or loss of financial transactions or data. "
+            "This may impact the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -96,12 +110,18 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Access Provisioning Process"],
-        evaluation_criteria="New user/transfer provisioning process was described."
+        evaluation_criteria="New user/transfer provisioning process was described.",
+        risk_id="R-IT-01",
+        risk_description=(
+            "There is a risk of unauthorized access to systems resulting in the inappropriate activity "
+            "like use, disclosure, modification, damage to or loss of financial transactions or data. "
+            "This may impact the integrity of financial reporting."
+        )
     ),
 
         Control(
         control_id="APD-01",
-        short_name="Access Provisioning",
+        short_name="Access Provisioning - Non-Standard",
         description=(
             "For [INSERT SYSTEM] access above standard or view-only roles, new access or changes to "
             "existing user access are documented via ticket or email, are submitted by users' managers, "
@@ -112,7 +132,13 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Access Provisioning Process"],
-        evaluation_criteria="New user/transfer provisioning process was described."
+        evaluation_criteria="New user/transfer provisioning process was described.",
+        risk_id="R-IT-01",
+        risk_description=(
+            "There is a risk of unauthorized access to systems resulting in the inappropriate activity "
+            "like use, disclosure, modification, damage to or loss of financial transactions or data. "
+            "This may impact the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -128,7 +154,13 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Access Removal Process"],
-        evaluation_criteria="Formal automated access removal process was described."
+        evaluation_criteria="Formal automated access removal process was described.",
+        risk_id="R-IT-01",
+        risk_description=(
+            "There is a risk of unauthorized access to systems resulting in the inappropriate activity "
+            "like use, disclosure, modification, damage to or loss of financial transactions or data. "
+            "This may impact the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -144,7 +176,13 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Access Removal Process"],
-        evaluation_criteria="Formal manual access removal process was described."
+        evaluation_criteria="Formal manual access removal process was described.",
+        risk_id="R-IT-01",
+        risk_description=(
+            "There is a risk of unauthorized access to systems resulting in the inappropriate activity "
+            "like use, disclosure, modification, damage to or loss of financial transactions or data. "
+            "This may impact the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -162,7 +200,13 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Annually",
         scoping_headers=["Role Modification Capability; Role Review"],
-        evaluation_criteria="Must start with 'Yes;'"
+        evaluation_criteria="Must start with 'Yes;'",
+        risk_id="R-IT-02",
+        risk_description=(
+            "There is a risk of non-required access to systems being granted to users, resulting in "
+            "unauthorized activity like the use, disclosure, modification or loss of financial "
+            "transactions or data. This may impact the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -180,7 +224,13 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Annually",
         scoping_headers=["Role Modification Capability; Role Review"],
-        evaluation_criteria="Must start with 'Yes;'"
+        evaluation_criteria="Must start with 'Yes;'",
+        risk_id="R-IT-02",
+        risk_description=(
+            "There is a risk of non-required access to systems being granted to users, resulting in "
+            "unauthorized activity like the use, disclosure, modification or loss of financial "
+            "transactions or data. This may impact the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -198,7 +248,13 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Quarterly",
         scoping_headers=["User Access Review"],
-        evaluation_criteria="Must start with'Yes;'"
+        evaluation_criteria="Must start with'Yes;'",
+        risk_id="R-IT-02",
+        risk_description=(
+            "There is a risk of non-required access to systems being granted to users, resulting in "
+            "unauthorized activity like the use, disclosure, modification or loss of financial "
+            "transactions or data. This may impact the integrity of financial reporting."
+        )
     ),
     
     Control(
@@ -216,8 +272,14 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Quarterly",
         scoping_headers=["User Access Review"],
-        evaluation_criteria="Must start with'Yes;'"
-    ),    
+        evaluation_criteria="Must start with'Yes;'",
+        risk_id="R-IT-02",
+        risk_description=(
+            "There is a risk of non-required access to systems being granted to users, resulting in "
+            "unauthorized activity like the use, disclosure, modification or loss of financial "
+            "transactions or data. This may impact the integrity of financial reporting."
+        )
+    ),   
 
     Control(
         control_id="APD-05",
@@ -235,7 +297,13 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Annually",
         scoping_headers=["System Accounts; System Account Credential Access"],
-        evaluation_criteria="Shared/generic account credential usage was described."
+        evaluation_criteria="Shared/generic account credential usage was described.",
+        risk_id="R-IT-02",
+        risk_description=(
+            "There is a risk of non-required access to systems being granted to users, resulting in "
+            "unauthorized activity like the use, disclosure, modification or loss of financial "
+            "transactions or data. This may impact the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -252,7 +320,14 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Monthly",
         scoping_headers=["Admin Activity Review"],
-        evaluation_criteria="Must start with'Yes;'"
+        evaluation_criteria="Must start with'Yes;'",
+        risk_id="R-IT-03",
+        risk_description=(
+            "There is a risk of system controls override caused by privileged users having the ability "
+            "to perform privileged activity, which may include password resets, changes to database "
+            "schemas and directly modifying financial transactions. This may impact the integrity of "
+            "financial reporting."
+        )
     ),
 
     Control(
@@ -268,7 +343,14 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Annually",
         scoping_headers=["Authentication Configuration Review"],
-        evaluation_criteria="Must start with'Yes;'"
+        evaluation_criteria="Must start with'Yes;'",
+        risk_id="R-IT-04",
+        risk_description=(
+            "There is a risk of system access gained by a user due to weak password policy resulting "
+            "in the unauthorized activity being executed like use, disclosure, modification, damage to "
+            "or loss of financial transactions or data. This may impact the integrity of financial "
+            "reporting."
+        )
     ),
 
     Control(
@@ -283,7 +365,15 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Change Management Process"],
-        evaluation_criteria="Formal change approval process was described."
+        evaluation_criteria="Formal change approval process was described.",
+        risk_id="R-IT-05",
+        risk_description=(
+            "There is a risk of unauthorized code changes or changes without appropriate approval "
+            "being made in the production environment of the information systems. There is also a risk "
+            "of changes operating in ways other than those that were intended caused by changes not "
+            "following appropriate testing plans. This may impact the functionality of financial "
+            "systems and the controls."
+        )
     ),
     Control(
         control_id="CM-02",
@@ -297,7 +387,15 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Separate Environments"],
-        evaluation_criteria="Various change environments were listed."
+        evaluation_criteria="Various change environments were listed.",
+        risk_id="R-IT-06",
+        risk_description=(
+            "There is a risk of erroneous or fraudulent change being introduced without detection "
+            "caused by financial reporting systems not being appropriately secure to prevent a single "
+            "individual from developing a change and then promoting that change without being detected, "
+            "or not appropriately secure to prevent individuals promoting unauthorized changes into the "
+            "production environment. This may impact the integrity of financial reporting."
+        )
     ),
     Control(
         control_id="CM-03",
@@ -313,7 +411,15 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Quarterly",
         scoping_headers=["Change Review Process"],
-        evaluation_criteria="Must start with'Yes;'"
+        evaluation_criteria="Must start with'Yes;'",
+        risk_id="R-IT-05",
+        risk_description=(
+            "There is a risk of unauthorized code changes or changes without appropriate approval "
+            "being made in the production environment of the information systems. There is also a risk "
+            "of changes operating in ways other than those that were intended caused by changes not "
+            "following appropriate testing plans. This may impact the functionality of financial "
+            "systems and the controls."
+        )
     ),
 
     Control(
@@ -330,7 +436,15 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Quarterly",
         scoping_headers=["Change Review Process"],
-        evaluation_criteria="Must start with'Yes;'"
+        evaluation_criteria="Must start with'Yes;'",
+        risk_id="R-IT-05",
+        risk_description=(
+            "There is a risk of unauthorized code changes or changes without appropriate approval "
+            "being made in the production environment of the information systems. There is also a risk "
+            "of changes operating in ways other than those that were intended caused by changes not "
+            "following appropriate testing plans. This may impact the functionality of financial "
+            "systems and the controls."
+        )
     ),
 
     Control(
@@ -345,7 +459,15 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Automated",
         scoping_headers=["Segregation of Duties; Change Access"],
-        evaluation_criteria="Client explicitly confirmed that users cannot both develop and migrate changes to production"
+        evaluation_criteria="Client explicitly confirmed that users cannot both develop and migrate changes to production", 
+        risk_id="R-IT-05",
+        risk_description=(
+            "There is a risk of unauthorized code changes or changes without appropriate approval "
+            "being made in the production environment of the information systems. There is also a risk "
+            "of changes operating in ways other than those that were intended caused by changes not "
+            "following appropriate testing plans. This may impact the functionality of financial "
+            "systems and the controls."
+        )
     ),
 
     Control(
@@ -360,7 +482,15 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Change Management Process"],
-        evaluation_criteria="Formal change approval process was described."
+        evaluation_criteria="Formal change approval process was described.",
+        risk_id="R-IT-05",
+        risk_description=(
+            "There is a risk of unauthorized code changes or changes without appropriate approval "
+            "being made in the production environment of the information systems. There is also a risk "
+            "of changes operating in ways other than those that were intended caused by changes not "
+            "following appropriate testing plans. This may impact the functionality of financial "
+            "systems and the controls."
+        )
     ),
 
     Control(
@@ -378,7 +508,14 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Job Management Tools; Job Failure Resolution"],
-        evaluation_criteria="Tools for monitoring jobs were listed and a process for resolving job failures was described."
+        evaluation_criteria="Tools for monitoring jobs were listed and a process for resolving job failures was described.",
+        risk_id="R-IT-07",
+        risk_description=(
+            "There is a risk of potentially material discrepancies between financial systems caused by "
+            "failures related to batch processing jobs and interfaces that impact financially significant "
+            "systems not being monitored, investigated and resolved in a timely manner. This may impact "
+            "the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -394,7 +531,14 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Daily",
         scoping_headers=["Job Management Tools", "Job Failure Resolution"],
-        evaluation_criteria="Periodic review of job failures was described."
+        evaluation_criteria="Periodic review of job failures was described.",
+        risk_id="R-IT-07",
+        risk_description=(
+            "There is a risk of potentially material discrepancies between financial systems caused by "
+            "failures related to batch processing jobs and interfaces that impact financially significant "
+            "systems not being monitored, investigated and resolved in a timely manner. This may impact "
+            "the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -411,7 +555,14 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad Hoc",
         scoping_headers=["Job Management Tools; Job Failure Resolution"],
-        evaluation_criteria="Monitoring tool and job failure resolution process described."
+        evaluation_criteria="Monitoring tool and job failure resolution process described.",
+        risk_id="R-IT-07",
+        risk_description=(
+            "There is a risk of potentially material discrepancies between financial systems caused by "
+            "failures related to batch processing jobs and interfaces that impact financially significant "
+            "systems not being monitored, investigated and resolved in a timely manner. This may impact "
+            "the integrity of financial reporting."
+        )
     ),
 
     Control(
@@ -427,7 +578,15 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Ad-Hoc",
         scoping_headers=["Backup Frequency; Backup Types; Backup Failure Resolution"],
-        evaluation_criteria="Client confirms that the system is SaaS"
+        evaluation_criteria="Client confirms that the system is SaaS",
+        risk_id="R-IT-07",
+        risk_description=(
+            "There is a risk that inadequate or failed data backup processes may result in data loss "
+            "or corruption during incidents such as system failures or disasters. Due to the critical "
+            "nature and extensive reliance on technology and data, such data loss or corruption may "
+            "negatively impact the accuracy, completeness, or integrity of financial transactions and "
+            "data, thereby affecting the reliability of financial reporting."
+        )
     ),
 
     Control(
@@ -443,7 +602,15 @@ STANDARD_CONTROLS = [
         nature="Preventative",
         frequency="Weekly",
         scoping_headers=["Backup Frequency; Backup Types; Backup Failure Resolution"],
-        evaluation_criteria="The system is not purely SaaS and they manage backups themselves."
+        evaluation_criteria="The system is not purely SaaS and they manage backups themselves.",
+        risk_id="R-IT-07",
+        risk_description=(
+            "There is a risk that inadequate or failed data backup processes may result in data loss "
+            "or corruption during incidents such as system failures or disasters. Due to the critical "
+            "nature and extensive reliance on technology and data, such data loss or corruption may "
+            "negatively impact the accuracy, completeness, or integrity of financial transactions and "
+            "data, thereby affecting the reliability of financial reporting."
+        )
     ),
 
     Control(
@@ -459,7 +626,15 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Ad-Hoc",
         scoping_headers=["Backup Frequency; Backup Types; Backup Failure Resolution"],
-        evaluation_criteria="Client clearly indicated that the system is a vendor managed product and the the vendor is in charge of storing/backing up data."
+        evaluation_criteria="Client clearly indicated that the system is a vendor managed product and the the vendor is in charge of storing/backing up data.",
+        risk_id="R-IT-07",
+        risk_description=(
+            "There is a risk that inadequate or failed data backup processes may result in data loss "
+            "or corruption during incidents such as system failures or disasters. Due to the critical "
+            "nature and extensive reliance on technology and data, such data loss or corruption may "
+            "negatively impact the accuracy, completeness, or integrity of financial transactions and "
+            "data, thereby affecting the reliability of financial reporting."
+        )
     ),
 
     Control(
@@ -475,7 +650,15 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Quarterly",
         scoping_headers=["Backup Frequency; Backup Types; Backup Failure Resolution"],
-        evaluation_criteria="On-prem or hybrid environment that requires demonstration of backup integrity."
+        evaluation_criteria="On-prem or hybrid environment that requires demonstration of backup integrity.",
+        risk_id="R-IT-07",
+        risk_description=(
+            "There is a risk that inadequate or failed data backup processes may result in data loss "
+            "or corruption during incidents such as system failures or disasters. Due to the critical "
+            "nature and extensive reliance on technology and data, such data loss or corruption may "
+            "negatively impact the accuracy, completeness, or integrity of financial transactions and "
+            "data, thereby affecting the reliability of financial reporting."
+        )
     ),
 
     Control(
@@ -496,6 +679,12 @@ STANDARD_CONTROLS = [
         nature="Detective",
         frequency="Annually",
         scoping_headers=["SOC report Review"],
-        evaluation_criteria="Process on SOC review process was described."
+        evaluation_criteria="Process on SOC review process was described.",
+        risk_id="R-IT-07",
+        risk_description=(
+            "There is a risk that service organizations may have material weaknesses or deficiencies "
+            "within their internal control environment and therefore, the users control environment. "
+            "This may impact the integrity of financial reporting."
+        )
     )
 ]  # End of STANDARD_CONTROLS list   
