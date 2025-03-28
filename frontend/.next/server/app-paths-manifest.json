@@ -1,4 +1,4 @@
 {
   "/page": "app/page.js",
-  "/rcm-builder/page": "app/rcm-builder/page.js"
+  "/rcm-converter/page": "app/rcm-converter/page.js"
 }
