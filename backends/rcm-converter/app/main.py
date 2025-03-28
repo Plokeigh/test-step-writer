@@ -100,13 +100,13 @@ def process_rcm_file(input_file, template_file):
                 control_row = row
                 break
         
-        # Starting column F for systems (assuming this is column 6)
-        start_col = 6  # Column F
+        # Starting column J for systems (accounting for two new columns)
+        start_col = 10  # Column J
         
         if not control_row:
             raise ValueError("Could not find 'Control ID' in column A of the template")
         
-        # Place system names in row 8 starting from column F
+        # Place system names in row 8 starting from column J
         system_row = 8
         for idx, system in enumerate(system_names):
             col = start_col + idx
