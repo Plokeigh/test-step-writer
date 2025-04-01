@@ -94,9 +94,9 @@ def process_rcm_file(input_file, template_file):
         control_row = None
         start_col = None
         
-        # Identify the control codes in column A and find row 8 for system placement
+        # Identify the control codes in column C and find row 8 for system placement
         for row in range(1, sheet.max_row + 1):
-            if sheet.cell(row=row, column=1).value == "Control ID":
+            if sheet.cell(row=row, column=3).value == "Control ID":
                 control_row = row
                 break
         
@@ -104,7 +104,7 @@ def process_rcm_file(input_file, template_file):
         start_col = 10  # Column J
         
         if not control_row:
-            raise ValueError("Could not find 'Control ID' in column A of the template")
+            raise ValueError("Could not find 'Control ID' in column C of the template")
         
         # Place system names in row 8 starting from column J
         system_row = 8
@@ -114,7 +114,7 @@ def process_rcm_file(input_file, template_file):
         
         # Map controls for each system
         for row in range(control_row + 1, sheet.max_row + 1):
-            control_code = sheet.cell(row=row, column=1).value
+            control_code = sheet.cell(row=row, column=3).value
             
             if not control_code:
                 continue
