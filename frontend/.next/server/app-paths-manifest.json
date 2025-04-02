@@ -1,5 +1,7 @@
 {
   "/gap-builder/page": "app/gap-builder/page.js",
   "/rcm-converter/page": "app/rcm-converter/page.js",
-  "/api/rcm-converter/upload/route": "app/api/rcm-converter/upload/route.js"
+  "/api/rcm-converter/upload/route": "app/api/rcm-converter/upload/route.js",
+  "/api/rcm-converter/download/[fileId]/route": "app/api/rcm-converter/download/[fileId]/route.js",
+  "/rcm-builder/page": "app/rcm-builder/page.js"
 }
