@@ -20,22 +20,22 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Access Provisioning Process and Controls",
         gap_description=(
-            "The organization has no established process (formal or informal) for managing user access provisioning. "
-            "Access is granted on a completely ad-hoc basis with no consistency, documentation, or oversight. "
-            "There is no tracking of who requested access, who approved it, or when it was provisioned. "
-            "No segregation of duties exists, and there are no controls to prevent or detect inappropriate access rights. "
-            "This significantly increases the risk of unauthorized access to the application and its data, "
-            "potentially resulting in data breaches, unauthorized transactions, or compliance violations."
+            "The organization has no established process for managing user access provisioning. "
+            "Access is granted on an ad-hoc basis with limited consistency, documentation, or oversight. "
+            "There is a lack of tracking of access requests, approvals, or provisioning dates. "
+            "Segregation of duties is not consistently enforced, and controls to prevent or detect inappropriate access rights are limited. "
+            "This increases the risk of unauthorized access to the application and its data, "
+            "potentially leading to data breaches, unauthorized transactions, or compliance violations."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
             "1. Create a formally documented system access management policy "
             "2. Implement a ticketing system or standardized request form to track access requests and approvals "
-            "3. Establish a formal approval workflow involving direct managers and IT/Finance leadership. "
-            "4. Ensure that documented approvals are captured and retained for all access requests. "
-            "5. Ensure that system screenshots confirming what access was granted are documented for all access requests "
-            "6. Retain records of all access provisioning activities to maintain a reliable audit trail."
-            "7. Provide training to all relevant stakeholders on the newly implemented processes."
+            "3. Ensure that documented approvals are captured and retained for all access requests. "
+            "4. Ensure that system screenshots confirming what access was granted are documented for all access requests "
+            "5. Retain records of all access provisioning activities to maintain a reliable audit trail."
+            "6. Provide training to all relevant stakeholders on the newly implemented processes."
+            "7. Where possible consider establishing a formal approval workflow involving direct managers and system owners."
         )
     ),
     
@@ -45,19 +45,19 @@ GAP_EXAMPLES = [
         gap_status="informal process",
         gap_title="Absence of Formalized Process for Concur Access Provisioning",
         gap_description=(
-            "We understand that all Company employees obtain standard access to Concur for expense reporting purposes "
+            "We understand that all Company employees obtain standard access to the system for expense reporting purposes "
             "and that this standard access should not be considered in-scope for SOX purposes. Therefore, this control "
-            "should apply to users requesting above standard access to Concur. "
-            "Management has an informal process for above standard Concur access provisioning, which is documented via email, "
+            "should apply to users requesting above standard access to the system. "
+            "Management has an informal process for above standard access provisioning to the system, which is often documented via email, "
             "but lacks formally documented procedures and controls for requesting, approving, and provisioning above "
             "standard access within Concur. "
-            "The absence of a formal access provisioning process creates inconsistency in how access is requested, "
+            "The absence of a formal access provisioning process can lead to inconsistencies in how access is requested, "
             "approved, and provisioned, increasing the risk of inappropriate or excessive access being granted without "
-            "proper oversight."
+            "sufficient oversight."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
-            "1. Develop a formally documented Concur access management policy. "
+            "1. Develop a formally documented system access management policy. "
             "2. Implement a standardized request form or ticketing system for above standard access requests. "
             "3. Establish a formal approval workflow involving direct managers and IT/Finance leadership. "
             "4. Ensure that specific roles / permissions are documented for all above standard access requests. "
@@ -75,13 +75,13 @@ GAP_EXAMPLES = [
         gap_title="Absence of Formal Terminated Access Removal Process for JPMC",
         gap_description=(
             "The organization lacks a formalized process for removing system access upon employee termination, "
-            "currently relying on informal email documentation. "
-            "The termination notification process depends on manual HR communication to system administrators "
+            "currently relying on informal email communication. "
+            "The termination notification process relies on manual HR communication to system administrators "
             "without a consistent, traceable workflow or ticketing system. "
-            "While access is reported to be removed within three business days, there is no formal tracking "
-            "mechanism to monitor compliance with this timeframe requirement. "
+            "While access is generally removed within a reasonable timeframe, there is no formal tracking "
+            "mechanism to monitor compliance consistently. "
             "Evidence of access removal is captured through screenshots, but the overall documentation process "
-            "lacks structure and centralized retention for audit purposes."
+            "could benefit from more structure and centralized retention for audit purposes."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -106,16 +106,16 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Terminated Access Removal Process for JPMC",
         gap_description=(
-            "The organization has no established process (formal or informal) for removing system access upon "
+            "The organization has no established process for removing system access upon "
             "employee termination. "
-            "There is no consistent method for notifying system administrators when employees leave the organization, "
-            "resulting in potential delayed or missed access removals. "
+            "There is not a consistent method for notifying system administrators when employees leave the organization, "
+            "which can result in delayed or missed access removals. "
             "No tracking mechanism exists to verify that access is removed within required timeframes, "
-            "creating compliance risks and potential security vulnerabilities. "
-            "Documentation of access removal actions is completely absent, with no evidence collection, "
+            "creating potential compliance risks and security vulnerabilities. "
+            "Documentation of access removal actions is inconsistent, with limited evidence collection, "
             "verification procedures, or centralized record-keeping for audit purposes. "
-            "This significantly increases the risk of unauthorized system access by former employees, "
-            "potentially resulting in data breaches or unauthorized transactions."
+            "This increases the risk of unauthorized system access by former employees, "
+            "potentially leading to data breaches or unauthorized transactions."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -140,14 +140,13 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Annual Roles Permissions Review for Azure",
         gap_description=(
-            "Management is not performing an annual review of all actively held roles and their permissions "
+            "Management is not currently performing a consistent annual review of all actively held roles and their permissions "
             "within Azure, despite having a defined control objective to ensure that permissions associated "
             "with each role remain appropriate. "
-            "While Company has the capability to create custom roles within Azure, they currently only use "
-            "out-of-the-box roles. However, the absence of a periodic review still presents a risk as even "
-            "predefined roles may grant inappropriate access over time as business requirements and user "
+            "While the Company currently uses primarily out-of-the-box roles, the absence of a periodic review presents a risk, as even "
+            "predefined roles may grant access that becomes inappropriate over time as business requirements and user "
             "responsibilities change. "
-            "Without regular reviews, there is no mechanism to identify potential segregation of duties "
+            "Without regular reviews, it can be challenging to identify potential segregation of duties "
             "conflicts or excessive permissions that may exist within the roles being used in Azure."
         ),
         recommendation=(
@@ -168,16 +167,16 @@ GAP_EXAMPLES = [
         gap_status="informal process",
         gap_title="Informal Annual Roles Permissions Review Process for Azure",
         gap_description=(
-            "Management conducts occasional ad-hoc reviews of Azure roles and permissions, but lacks a "
+            "Management conducts occasional reviews of Azure roles and permissions, but lacks a "
             "formalized, documented annual review process with consistent scheduling and methodology. "
             "While some review activities occur, they are performed inconsistently without standardized "
             "templates, complete role inventories, or formal documentation requirements. "
-            "The current informal approach relies heavily on individual knowledge rather than established "
-            "procedures, creating inconsistency in review scope and thoroughness. "
-            "Evidence collection is limited and lacks standardization, making it difficult to demonstrate "
+            "The current informal approach relies more on individual knowledge than established "
+            "procedures, which can lead to inconsistencies in review scope and thoroughness. "
+            "Evidence collection is somewhat limited and lacks standardization, making it more challenging to demonstrate "
             "the effectiveness and completeness of reviews during audit examinations. "
-            "Without a structured approach, there's inconsistent assessment of segregation of duties risks "
-            "and potential excessive permissions that may exist within the Azure environment."
+            "Without a more structured approach, the assessment of segregation of duties risks "
+            "and potential excessive permissions within the Azure environment may be inconsistent."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -197,14 +196,14 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Quarterly User Access Reviews for Azure",
         gap_description=(
-            "Management does not perform quarterly user access reviews to validate the appropriateness of access "
+            "Management does not currently perform quarterly user access reviews to validate the appropriateness of access "
             "to in-scope IT applications for all active users, including non-human and admin accounts. "
-            "Without a formal review process, there is no systematic identification of inactive users whose "
-            "access should be revoked or users with inappropriate access levels that need to be modified or removed. "
-            "The lack of regular access reviews creates a risk that unauthorized or excessive access may persist "
-            "indefinitely, potentially allowing unauthorized individuals to perform inappropriate transactions "
+            "Without a formal review process, there isn't a systematic way to identify inactive users whose "
+            "access should be revoked or users with inappropriate access levels that need modification or removal. "
+            "The lack of regular access reviews increases the risk that unauthorized or excessive access may persist, "
+            "potentially allowing individuals to perform inappropriate transactions "
             "or access sensitive data. "
-            "There is no established process for tracking, documenting, and remediating identified access issues, "
+            "There isn't an established process for tracking, documenting, and remediating identified access issues, "
             "including the execution of lookback procedures when inappropriate access is discovered."
         ),
         recommendation=(
@@ -225,16 +224,16 @@ GAP_EXAMPLES = [
         gap_status="informal process",
         gap_title="Informal Quarterly User Access Reviews for Azure",
         gap_description=(
-            "Management performs occasional ad-hoc reviews of user access in Azure, but lacks a formalized, "
+            "Management performs occasional reviews of user access in Azure, but lacks a formalized, "
             "documented quarterly review process with consistent scheduling and methodology. "
             "While some user access verification activities occur, they are performed inconsistently without "
             "standardized templates, complete user inventories, or formal documentation requirements. "
-            "The current informal approach does not comprehensively cover all user types, including non-human "
+            "The current informal approach may not comprehensively cover all user types, including non-human "
             "accounts and administrative users, creating potential security gaps. "
-            "Evidence collection is limited and lacks standardization, making it difficult to demonstrate "
+            "Evidence collection is limited and lacks standardization, making it challenging to demonstrate "
             "the effectiveness and completeness of reviews during audit examinations. "
             "Remediation of identified access issues occurs on an ad-hoc basis without consistent tracking, "
-            "timeframes for resolution, or formal lookback procedures to assess potential impacts."
+            "defined timeframes for resolution, or formal lookback procedures to assess potential impacts."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -254,13 +253,13 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Formalized Controls for Generic/Non-Human Account Management for NetSuite",
         gap_description=(
-            "Management has generic/non-human accounts within this system, which presents a risk. "
-            "The credentials for the non-human account(s) are not stored in a secure credential management "
+            "Management utilizes generic/non-human accounts within this system, which warrants careful management. "
+            "The credentials for the non-human account(s) are not currently stored in a secure credential management "
             "solution (vault system), but are instead known by individual Company employees. "
-            "This approach to credential management creates significant security risks, including the potential "
+            "This approach to credential management increases security risks, including the potential "
             "for unauthorized access if the individual(s) with knowledge of the credentials leaves the organization "
-            "or becomes unavailable, as well as a lack of accountability and audit trail for actions performed "
-            "using the account."
+            "or becomes unavailable. It also makes accountability and establishing an audit trail for actions performed "
+            "using the account more challenging."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -278,16 +277,16 @@ GAP_EXAMPLES = [
         gap_status="informal process",
         gap_title="Informal Controls for Generic/Non-Human Account Management for NetSuite",
         gap_description=(
-            "Management has established certain generic/non-human accounts within NetSuite with some informal "
+            "Management has established generic/non-human accounts within NetSuite with some informal "
             "controls, but lacks a comprehensive and formalized approach to their management. "
             "While there is some awareness of which employees know these account credentials, the sharing and "
-            "tracking of this information occurs through informal channels without proper documentation. "
+            "tracking of this information occurs through informal channels without consistent documentation. "
             "Some basic password management practices exist, but credentials are not consistently stored in a "
-            "secure credential management solution (vault system), creating potential security vulnerabilities. "
+            "secure credential management solution (vault system), increasing potential security vulnerabilities. "
             "There is limited monitoring of generic account usage and no formal periodic review process to "
             "validate the continued business need and appropriate configuration of these accounts. "
-            "This inconsistent approach to credential management creates increased security risks and challenges "
-            "for establishing accountability for actions performed using these accounts."
+            "This inconsistent approach to credential management increases security risks and challenges "
+            "in establishing accountability for actions performed using these accounts."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -305,12 +304,12 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Monthly Admin Activity Log Reviews for Bill.com",
         gap_description=(
-            "Management does not perform periodic reviews of administrator activity logs within Bill.com, "
-            "despite the system having the capability to generate these logs through the application user interface. "
-            "There is no formalized process for generating, assessing, and documenting the review of administrative "
+            "Management does not currently perform periodic reviews of administrator activity logs within Bill.com, "
+            "although the system has the capability to generate these logs. "
+            "There isn't a formalized process for generating, assessing, and documenting the review of administrative "
             "activities such as direct data changes, transactions, and other privileged actions performed within Bill.com. "
-            "Without periodic reviews of administrator activity logs, there is limited ability to identify, "
-            "investigate, and resolve potentially inappropriate administrative actions in a timely manner."
+            "Without periodic reviews of administrator activity logs, the ability to identify, "
+            "investigate, and resolve potentially inappropriate administrative actions in a timely manner is limited."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -334,13 +333,13 @@ GAP_EXAMPLES = [
             "Management occasionally reviews administrator activity logs within Bill.com on an ad-hoc basis, "
             "but lacks a formalized, consistent process for these reviews. "
             "While some administrator activity monitoring occurs, it is performed without standardized templates, "
-            "documented procedures, or consistent scheduling, making it difficult to ensure completeness. "
+            "documented procedures, or consistent scheduling, making it harder to ensure completeness. "
             "The current informal approach to log review lacks clear definition of which specific administrative "
             "actions should be monitored and lacks formal documentation of the review process and findings. "
-            "Evidence collection is limited and inconsistent, creating challenges in demonstrating the "
+            "Evidence collection is somewhat limited and inconsistent, creating challenges in demonstrating the "
             "effectiveness of monitoring activities during audit examinations. "
             "Investigation and remediation of identified issues occurs on an ad-hoc basis without formal "
-            "tracking, timeframes for resolution, or documentation requirements."
+            "tracking, defined timeframes for resolution, or documentation requirements."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -361,14 +360,14 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Annual Authentication Configuration Reviews",
         gap_description=(
-            "Management does not perform annual reviews of authentication configurations, including password "
+            "Management does not currently perform annual reviews of authentication configurations, including password "
             "settings for non-SSO systems and SSO integration configurations for SSO-enabled applications. "
-            "There is no formalized process to verify that these authentication configurations align with "
-            "the organization's security standards and that no unauthorized changes have been made. "
-            "Without regular reviews, there is no assurance that password settings and SSO configurations "
+            "There isn't a formalized process to verify that these authentication configurations align with "
+            "the organization's security standards and that no unauthorized changes have occurred. "
+            "Without regular reviews, there is less assurance that password settings and SSO configurations "
             "maintain compliance with the company's security policies over time, potentially leading to "
-            "weaker security controls. "
-            "There is no formal IT authentication policy documented and maintained by Company Management "
+            "weakened security controls. "
+            "There isn't a formal IT authentication policy documented and maintained by Company Management "
             "that addresses both password requirements and SSO implementation standards."
         ),
         recommendation=(
@@ -394,10 +393,10 @@ GAP_EXAMPLES = [
             "non-SSO systems and SSO integration configurations for SSO-enabled applications, but lacks a "
             "formalized, documented review process with consistent scheduling and methodology. "
             "While some verification of password and SSO settings occurs, it is performed without standardized "
-            "templates, complete documentation, or reference to a formal IT authentication policy. "
-            "The current informal approach relies on individual knowledge rather than established procedures, "
-            "creating inconsistency in review scope and thoroughness across different authentication methods. "
-            "Evidence collection is limited and lacks standardization, making it difficult to demonstrate "
+            "templates, consistent documentation, or reference to a formal IT authentication policy. "
+            "The current informal approach relies more on individual knowledge than established procedures, "
+            "creating potential inconsistency in review scope and thoroughness across different authentication methods. "
+            "Evidence collection is limited and lacks standardization, making it more challenging to demonstrate "
             "that authentication configurations maintain compliance with security standards over time. "
             "The company has some general authentication guidelines, but lacks a comprehensive, formally documented "
             "IT authentication policy that would provide clear standards for both password and SSO configuration reviews."
@@ -421,15 +420,15 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Formal Change Management Processes for Concur",
         gap_description=(
-            "Management lacks a formal, documented change management process for the Concur system, resulting "
-            "in ad-hoc modifications to workflow configurations and approval routing without proper oversight "
+            "Management lacks a formal, documented change management process for the Concur system, leading "
+            "to primarily ad-hoc modifications to workflow configurations and approval routing without consistent oversight "
             "or control. "
-            "There is no standardized request process or ticketing system to document and track changes before "
+            "There isn't a standardized request process or ticketing system to document and track changes before "
             "they are implemented in the production environment. "
-            "Changes are made directly in the production environment without prior testing in a non-production "
+            "Changes are sometimes made directly in the production environment without prior testing in a non-production "
             "environment, increasing the risk of unintended consequences that could impact financial data integrity. "
-            "Management does not maintain evidence of testing or formal approvals prior to implementing changes, "
-            "preventing proper validation that changes function as intended and are appropriately authorized."
+            "Management does not consistently maintain evidence of testing or formal approvals prior to implementing changes, "
+            "hindering the validation that changes function as intended and are appropriately authorized."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -448,17 +447,17 @@ GAP_EXAMPLES = [
     gap_status="informal process",
     gap_title="Informal Change Management Processes for Concur",
     gap_description=(
-        "Management follows an informal, undocumented change management process for the Concur system, "
+        "Management follows an informal, often undocumented change management process for the Concur system, "
         "relying primarily on email communications and verbal approvals for workflow configurations and "
         "approval routing changes. "
-        "While some change requests are documented, there is no standardized process or centralized "
+        "While some change requests may be documented, there is no standardized process or centralized "
         "tracking system to ensure consistency and completeness in how changes are requested, approved, "
         "and implemented. "
         "Limited testing of changes may occur, but it is conducted inconsistently and without formal "
-        "testing procedures or documentation standards to validate that changes function as intended. "
-        "Approval for changes is obtained informally, often through email or verbal confirmation, but "
+        "testing procedures or documentation standards to fully validate that changes function as intended. "
+        "Approval for changes is often obtained informally, sometimes through email or verbal confirmation, but "
         "lacks a structured workflow with clearly defined roles and responsibilities for authorization. "
-        "Documentation of changes is maintained inconsistently, making it difficult to establish a "
+        "Documentation of changes is maintained inconsistently, making it more difficult to establish a "
         "complete audit trail of modifications to the production environment."
     ),
     recommendation=(
@@ -478,14 +477,14 @@ GAP_EXAMPLES = [
     gap_status="gap",
     gap_title="Absence of Separate Environment for Concur",
     gap_description=(
-        "Management does not have a separate pre-production environment established for Concur, "
-        "preventing the organization from properly testing changes before implementing them in the "
+        "Management does not currently have a separate pre-production environment established for Concur, "
+        "which limits the ability to properly test changes before implementing them in the "
         "production environment. "
-        "All configuration changes, workflow modifications, and approval routing updates are made directly "
+        "Configuration changes, workflow modifications, and approval routing updates are often made directly "
         "in the production environment without prior testing in a separate instance. "
-        "The absence of a separate pre-production environment significantly increases the risk of unintended "
+        "The absence of a separate pre-production environment increases the risk of unintended "
         "consequences when making changes, potentially affecting financial data integrity and system functionality. "
-        "Without a separate testing environment, the organization cannot validate that changes will function "
+        "Without a separate testing environment, it is challenging to validate that changes will function "
         "as intended before they impact end users and business operations."
     ),
     recommendation=(
@@ -508,14 +507,14 @@ GAP_EXAMPLES = [
     gap_status="informal process",
     gap_title="Underutilized Separate Environment for Concur",
     gap_description=(
-        "Management has established a separate pre-production environment for Concur, but does not "
-        "effectively utilize it for testing changes before implementing them in the production environment. "
-        "The pre-production environment exists but is rarely used, with most configuration changes, "
+        "Management has established a separate pre-production environment for Concur, but it is not "
+        "consistently utilized for testing changes before implementing them in the production environment. "
+        "The pre-production environment exists but is infrequently used, with many configuration changes, "
         "workflow modifications, and approval routing updates still being made directly in the production environment. "
-        "The pre-production environment is not regularly refreshed to mirror the production environment, "
-        "significantly diminishing its value as a testing platform since it does not accurately reflect "
+        "The pre-production environment may not be regularly refreshed to mirror the production environment, "
+        "which can diminish its value as a testing platform since it might not accurately reflect "
         "current production configurations. "
-        "Without proper utilization of the existing pre-production environment, the organization cannot "
+        "Without consistent utilization of the existing pre-production environment, the organization cannot "
         "effectively validate that changes will function as intended before they impact end users and "
         "business operations, creating unnecessary risk to financial data integrity and system functionality."
     ),
@@ -540,12 +539,12 @@ GAP_EXAMPLES = [
     gap_status="gap",
     gap_title="Absence of Monthly Change Review Process for NetSuite",
     gap_description=(
-        "Management does not perform periodic reviews of changes deployed to the NetSuite production "
-        "environment, creating a risk that unauthorized modifications may go undetected. "
-        "Without a periodic review process, management cannot verify that all changes were properly "
+        "Management does not currently perform periodic reviews of changes deployed to the NetSuite production "
+        "environment, creating a risk that unauthorized or untested modifications may go undetected. "
+        "Without a periodic review process, management cannot easily verify that all changes were properly "
         "requested, tested, and approved prior to implementation in the production environment. "
-        "The organization lacks an escalation and resolution procedure to address unauthorized changes "
-        "that may be identified during reviews, potentially allowing improper changes to remain in the "
+        "The organization lacks a formalized escalation and resolution procedure to address unauthorized changes "
+        "that might be identified during reviews, potentially allowing improper changes to remain in the "
         "production environment."
     ),
     recommendation=(
@@ -569,10 +568,10 @@ GAP_EXAMPLES = [
         "Management occasionally reviews changes deployed to the NetSuite production environment, but "
         "lacks a formalized, documented monthly review process with consistent scheduling and methodology. "
         "While some monitoring of deployed changes occurs, it is performed without standardized templates, "
-        "complete coverage of all change types, or formal documentation requirements. "
-        "The current informal approach relies heavily on individual knowledge rather than established "
-        "procedures, creating inconsistency in review scope and thoroughness. "
-        "Evidence collection is limited and lacks standardization, making it difficult to demonstrate "
+        "consistent coverage of all relevant change types, or formal documentation requirements. "
+        "The current informal approach relies more on individual knowledge than established "
+        "procedures, potentially creating inconsistency in review scope and thoroughness. "
+        "Evidence collection is somewhat limited and lacks standardization, making it more challenging to demonstrate "
         "the effectiveness and completeness of reviews during audit examinations. "
         "The organization has an inconsistent approach to addressing unauthorized changes when identified, "
         "without formal escalation procedures or documentation requirements for resolution activities."
@@ -598,9 +597,9 @@ GAP_EXAMPLES = [
         "Management has not established a formal process to document, test, and approve critical releases, "
         "patches, or upgrades from Concur (SaaS provider) before they are implemented in the production "
         "environment. "
-        "There is no ticketing system or other formal documentation method to track vendor-initiated changes "
-        "to the Concur application, creating a lack of visibility into system modifications. "
-        "Management does not perform testing of vendor updates in a non-production environment prior to "
+        "There isn't a ticketing system or other formal documentation method used to track vendor-initiated changes "
+        "to the Concur application, resulting in reduced visibility into system modifications. "
+        "Management does not typically perform testing of vendor updates in a non-production environment prior to "
         "implementation, increasing the risk that changes could negatively impact financial data integrity "
         "or system functionality. "
         "The organization has not implemented an approval workflow requiring business owner sign-off for "
@@ -629,8 +628,8 @@ GAP_EXAMPLES = [
         "While vendor change notifications are received, they are not consistently documented in a ticketing "
         "system or centralized repository, creating challenges in tracking system modifications over time. "
         "Limited testing of vendor updates may occur on an ad-hoc basis, but lacks formal testing procedures "
-        "and documentation standards to validate that changes will function as intended in the production environment. "
-        "Approval for vendor changes is obtained informally, often through email or verbal confirmation, but "
+        "and documentation standards to fully validate that changes will function as intended in the production environment. "
+        "Approval for vendor changes is often obtained informally, perhaps through email or verbal confirmation, but "
         "lacks a structured workflow with clearly defined roles and responsibilities for authorization. "
         "The organization has some awareness of upcoming vendor changes but lacks a comprehensive approach "
         "to managing and documenting the entire vendor change lifecycle from notification to post-implementation review."
@@ -654,13 +653,13 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Scheduled Job / Integration Failure Monitoring for NetSuite",
         gap_description=(
-            "While NetSuite has one automated job syncing with Adaptive Planning on a weekly basis, there is "
-            "no formal monitoring process to ensure timely detection of job failures. (Note: Please refer to "
+            "While NetSuite has an automated job syncing with Adaptive Planning on a weekly basis, there is "
+            "no formal monitoring process in place to ensure timely detection and resolution of job failures. (Note: Please refer to "
             "the Bill.com & Concur rows above for their respective NetSuite-related integrations / jobs.) "
-            "The current process relies solely on native error handling functionality within Adaptive Planning "
+            "The current process relies primarily on native error handling functionality within Adaptive Planning "
             "without documented procedures for consistent monitoring and failure alert review. "
-            "There is no formalized ticketing or documentation process to track job failures, investigations, "
-            "and resolutions, limiting accountability and auditability. "
+            "There isn't a formalized ticketing or documentation process to track job failures, investigations, "
+            "and resolutions, which limits accountability and auditability. "
             "The process lacks defined timelines and escalation procedures for addressing failures, potentially "
             "resulting in delayed identification and resolution of issues affecting financial data integrity."
         ),
@@ -687,7 +686,7 @@ GAP_EXAMPLES = [
         "there is no standardized procedure for reviewing these alerts or ensuring that appropriate personnel "
         "are consistently notified when failures occur. "
         "Job failures are typically addressed when discovered, but without a formal ticketing system or "
-        "documentation requirements, creating challenges in tracking investigation steps and resolution actions. "
+        "documentation requirements, it can be challenging to track investigation steps and resolution actions. "
         "The informal monitoring approach lacks defined response timeframes and escalation paths, potentially "
         "resulting in inconsistent handling of failures depending on who receives the notification and their "
         "availability. "
@@ -713,14 +712,14 @@ GAP_EXAMPLES = [
         gap_title="Inadequate Data Backup Process for LampWeb",
         gap_description=(
             "While Management performs some data backups for the LampWeb system, the process lacks formalization "
-            "and consistency in execution. Backups are performed on an ad-hoc basis rather than following the "
+            "and consistency in execution. Backups may be performed on an ad-hoc basis rather than consistently following the "
             "required daily incremental and weekly full backup schedule. "
-            "There is no structured process for reviewing backup logs to ensure successful completion, with "
+            "There isn't a structured process for reviewing backup logs to ensure successful completion, with "
             "reviews occurring sporadically rather than on the required weekly cadence. "
-            "Failed backups are occasionally noted but not consistently documented in a formal ticketing system, "
-            "creating gaps in the audit trail and potentially allowing backup failures to go unaddressed. "
-            "The organization lacks clear roles and responsibilities for backup management, resulting in "
-            "inconsistent oversight and accountability for this critical data protection control."
+            "Failed backups might be noted but are not consistently documented in a formal ticketing system, "
+            "creating potential gaps in the audit trail and possibly allowing backup failures to go unaddressed. "
+            "The organization could benefit from clearer roles and responsibilities for backup management, which would enhance "
+            "oversight and accountability for this data protection control."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -739,15 +738,15 @@ GAP_EXAMPLES = [
     gap_status="gap",
     gap_title="Absence of Data Backup Process for LampWeb",
     gap_description=(
-        "Management does not maintain a formal backup process for the LampWeb system, with no scheduled "
-        "daily incremental or weekly full backups being performed. "
-        "There is no defined backup strategy or documented procedures for creating and maintaining data "
+        "Management does not currently maintain a formal backup process for the LampWeb system, with no consistent "
+        "daily incremental or weekly full backups being performed according to a defined schedule. "
+        "There isn't a defined backup strategy or documented procedures for creating and maintaining data "
         "backups of this financially significant system. "
-        "The organization has not assigned responsibility for backup management to any specific administrator, "
-        "resulting in a complete lack of oversight for this critical data protection function. "
-        "No process exists for reviewing backup logs or documenting backup failures, creating significant "
-        "risk that data loss could occur without detection or mitigation. "
-        "The absence of a backup system creates substantial risk to business continuity and data integrity "
+        "The organization has not assigned specific responsibility for backup management to any particular administrator, "
+        "resulting in limited oversight for this data protection function. "
+        "No process exists for regularly reviewing backup logs or documenting backup failures, increasing the "
+        "risk that data loss could occur without timely detection or mitigation. "
+        "The absence of a robust backup system creates risk to business continuity and data integrity "
         "in the event of system failure, data corruption, or other disruptive events."
     ),
     recommendation=(
@@ -770,15 +769,15 @@ GAP_EXAMPLES = [
         gap_description=(
             "While system backups are being performed for LampWeb, the organization conducts limited and "
             "inconsistent testing of backup restoration capabilities. "
-            "Restoration tests are performed on an ad-hoc basis rather than following the required quarterly "
-            "schedule, with some quarters having no testing performed at all. "
-            "When tests are conducted, they typically involve only basic file-level restoration rather than "
+            "Restoration tests are performed on an ad-hoc basis rather than consistently following the required quarterly "
+            "schedule, with some quarters potentially having no testing performed. "
+            "When tests are conducted, they may involve only basic file-level restoration rather than "
             "comprehensive system recovery testing that would validate complete restoration is possible in a "
             "disaster scenario. "
-            "Documentation of restoration tests is minimal and inconsistent, often lacking detailed information "
+            "Documentation of restoration tests is often minimal and inconsistent, sometimes lacking detailed information "
             "about the test procedures, results, anomalies encountered, or corrective actions taken. "
-            "There are no formalized success criteria to objectively evaluate restoration test results, making "
-            "it difficult to determine if the tests are truly validating backup integrity and completeness."
+            "There are no formally defined success criteria to objectively evaluate restoration test results, making "
+            "it more difficult to determine if the tests are effectively validating backup integrity and completeness."
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
@@ -799,17 +798,17 @@ GAP_EXAMPLES = [
         gap_status="gap",
         gap_title="Absence of Formal SOC Report Review Process for Azure",
         gap_description=(
-            "Management does not perform a formal review of SOC 1 Type II reports for service organizations "
-            "to identify qualified opinions or exceptions in testing, resulting in potential unaddressed "
+            "Management does not currently perform a formal review of SOC 1 Type II reports for service organizations "
+            "to systematically identify qualified opinions or exceptions in testing, resulting in potential unaddressed "
             "control deficiencies within these service organizations. "
-            "There is no established process to identify and map complementary user entity controls (CUECs) "
+            "There isn't an established process to identify and map complementary user entity controls (CUECs) "
             "from the service organizations' SOC 1 reports to controls within the company's environment, "
             "potentially leaving gaps in the control framework unidentified and unresolved. "
-            "Management has not implemented procedures to identify subservice organizations used by service "
+            "Management has not implemented procedures to systematically identify subservice organizations used by service "
             "providers, obtain their SOC 1 reports, or map complementary subservice organization controls "
             "(CSOCs) to ensure comprehensive coverage of the control environment. "
-            "No alternative monitoring mechanisms have been established in cases where SOC 1 reports may not "
-            "be available, leaving the company without assurance regarding the effectiveness of controls at "
+            "No consistent alternative monitoring mechanisms have been established in cases where SOC 1 reports may not "
+            "be available, leaving the company with less assurance regarding the effectiveness of controls at "
             "service and subservice organizations."
         ),
         recommendation=(
@@ -833,7 +832,7 @@ GAP_EXAMPLES = [
         "Management occasionally reviews SOC 1 Type II reports for Azure, but lacks a formalized, "
         "documented process with consistent methodology and comprehensive coverage. "
         "While SOC reports are sometimes obtained, the review is performed without structured templates "
-        "or formal documentation of findings, making it difficult to track identified exceptions, "
+        "or formal documentation of findings, making it more challenging to track identified exceptions, "
         "qualified opinions, or their resolution over time. "
         "Complementary user entity controls (CUECs) mentioned in SOC reports are reviewed in an ad-hoc manner, "
         "without systematic mapping to the company's internal control environment, potentially leaving "
@@ -863,20 +862,20 @@ GAP_EXAMPLES = [
     gap_status="gap",
     gap_title="Absence of Formal Program Development (PD) and System Implementation Controls",
     gap_description=(
-        "Management does not have a formalized program development (PD) process in place to govern the "
+        "Management does not currently have a formalized program development (PD) process in place to govern the "
         "implementation of new systems or significant enhancements to existing systems within the IT "
-        "environment, resulting in a lack of structured project management. "
-        "There are no standardized procedures for conducting and documenting User Acceptance Testing (UAT) "
+        "environment, resulting in less structured project management. "
+        "There are no standardized procedures for consistently conducting and documenting User Acceptance Testing (UAT) "
         "prior to deploying new systems or enhancements, nor are there formal processes for tracking and "
         "resolving identified issues or defects. "
-        "There are no formal data validation procedures to ensure that data is properly migrated and "
+        "There are no formal data validation procedures established to ensure that data is properly migrated and "
         "converted into new systems, increasing the risk of incomplete or inaccurate data transfers. "
         "Management does not perform a formalized review of user access for new systems prior to go-live "
         "to ensure appropriate role configuration, restriction of access based on job responsibilities, "
         "and consideration of segregation of duties. "
-        "The organization has not established formal Go/No-Go criteria or a management approval process for "
+        "The organization has not established formal Go/No-Go criteria or a structured management approval process for "
         "new system implementations, potentially allowing systems to be placed into production without "
-        "adequate preparation and validation."
+        "thorough preparation and validation."
     ),
     recommendation=(
         "For the system(s) listed in column E, perform the following steps: "
@@ -896,14 +895,14 @@ GapExample(
     gap_status="informal process",
     gap_title="Informal Program Development (PD) and System Implementation Controls",
     gap_description=(
-        "Management follows an informal, ad-hoc approach to program development and system implementation, "
+        "Management follows an informal, often ad-hoc approach to program development and system implementation, "
         "with inconsistent application of project management principles and limited documentation of key "
         "activities and approvals. "
         "While some level of User Acceptance Testing (UAT) is performed for new systems or enhancements, "
-        "it lacks standardized test plans, formal documentation, and structured processes for tracking and "
+        "it lacks standardized test plans, formal documentation, and structured processes for consistently tracking and "
         "resolving identified issues or defects. "
         "Data migration activities occur during implementations, but validation procedures are inconsistent "
-        "and lack formal documentation to demonstrate the completeness and accuracy of transferred data. "
+        "and lack formal documentation to consistently demonstrate the completeness and accuracy of transferred data. "
         "Pre-implementation user access reviews happen occasionally but without standardized methodology "
         "to ensure appropriate role configuration, proper access restrictions, or adequate segregation of "
         "duties considerations. "
