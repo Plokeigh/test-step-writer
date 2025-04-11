@@ -684,7 +684,7 @@ GAP_EXAMPLES = [
         gap_description=(
             "While Management performs some data backups for the system, the process lacks formalization "
             "and consistency in execution. Backups may be performed on an ad-hoc basis rather than consistently following the "
-            "required daily incremental and weekly full backup schedule. "
+            "backup schedule. "
             "There isn't a structured process for reviewing backup logs to ensure successful completion, with "
             "reviews occurring sporadically rather than on the required weekly cadence. "
             "Failed backups might be noted but are not consistently documented in a formal ticketing system, "
@@ -696,7 +696,7 @@ GAP_EXAMPLES = [
             "For the system(s) listed in column E, perform the following steps: "
             "1. Establish a formal backup policy that clearly defines daily incremental and weekly full backup requirements for the system. "
             "2. Implement automated backup scheduling to ensure consistent execution according to the defined schedule. "
-            "3. Develop a standardized process for the designated administrator to review backup logs periodically (we recommend weekly). "
+            "3. Develop a standardized process for reviewing backup logs periodically (we recommend weekly). "
             "4. Create backup log review templates to document the completion and results of each periodic review. "
             "5. Implement a formal ticketing process to document all backup failures, including failure details and resolution steps. "
             "6. Define specific timeframes for addressing and resolving backup failures based on criticality. "
@@ -710,10 +710,10 @@ GAP_EXAMPLES = [
         gap_title="Absence of Data Backup Process",
         gap_description=(
             "Management does not currently maintain a formal backup process for the system, with no consistent "
-            "daily incremental or weekly full backups being performed according to a defined schedule. "
+            "back up schedule. "
             "There isn't a defined backup strategy or documented procedures for creating and maintaining data "
             "backups of this financially significant system. "
-            "The organization has not assigned specific responsibility for backup management to any particular administrator, "
+            "The organization has not assigned specific responsibility for backup management to any particular IT Personnel, "
             "resulting in limited oversight for this data protection function. "
             "No process exists for regularly reviewing backup logs or documenting backup failures, increasing the "
             "risk that data loss could occur without timely detection or mitigation. "
@@ -726,7 +726,7 @@ GAP_EXAMPLES = [
             "2. Implement a backup solution capable of performing the required backup schedule and retention requirements. "
             "3. Designate specific administrators responsible for backup management and oversight. "
             "4. Develop and document standardized procedures for executing and verifying backups. "
-            "5. Implement a formal process for periodic review of backup logs by the designated administrator (we recommend weekly). "
+            "5. Implement a formal process for periodic review of backup logs by the designated IT Personnel (we recommend weekly). "
             "6. Create a ticketing system to document and track the resolution of any backup failures. "
             "7. Consider implementing automated monitoring tools that provide real-time alerts for backup failures. "
             "8. Train relevant personnel on backup procedures and response protocols for backup failures."
@@ -754,8 +754,34 @@ GAP_EXAMPLES = [
             "For the system(s) listed in column E, perform the following steps: "
             "1. Establish a formal periodic schedule for system backup restoration testing with specific testing dates. We recommend performing these tests semi-annually; however, the frequency can be risk-adjusted based on factors like data criticality and backup system reliability. "
             "2. Develop comprehensive test scenarios that validate both file-level recovery and full system restoration capabilities. "
-            "3. Create detailed documentation templates for recording all aspects of restoration tests, including procedures followed, "
-            "results obtained, anomalies identified, and corrective actions implemented. "
+            "3. Create detailed documentation templates for recording all aspects of restoration tests, including procedures followed, results obtained, anomalies identified, and corrective actions implemented. "
+            "4. Define clear success criteria for restoration tests to objectively evaluate whether backups are valid and complete. "
+            "5. Implement a ticketing system to formally document each periodic test and track any required remediation actions. "
+            "6. Establish timeframes for addressing any issues identified during restoration testing. "
+            "7. Assign specific responsibility for overseeing the periodic testing program and ensuring tests are performed as scheduled."
+        )
+    ),
+    GapExample(
+        control_id="MO-03",
+        gap_status="gap",
+        gap_title="Absence of Backup Restoration Testing",
+        gap_description=(
+            "Management does not currently perform any testing of backup restoration capabilities for the system. "
+            "There is no process in place to periodically validate that backups can be successfully restored "
+            "in the event of system failure, data corruption, or other disruptive events. "
+            "The organization lacks documented procedures, schedules, or assigned responsibilities for conducting "
+            "restoration tests. "
+            "Without regular restoration testing, there is no assurance that the backups being performed are "
+            "actually viable for recovery, significantly increasing the risk of prolonged downtime and potential "
+            "data loss in a disaster scenario. "
+            "Furthermore, there are no defined success criteria or documentation standards for restoration testing, "
+            "making it impossible to verify backup integrity."
+        ),
+        recommendation=(
+            "For the system(s) listed in column E, perform the following steps: "
+            "1. Establish a formal periodic schedule for system backup restoration testing with specific testing dates. We recommend performing these tests semi-annually; however, the frequency can be risk-adjusted based on factors like data criticality and backup system reliability. "
+            "2. Develop comprehensive test scenarios that validate both file-level recovery and full system restoration capabilities. "
+            "3. Create detailed documentation templates for recording all aspects of restoration tests, including procedures followed, results obtained, anomalies identified, and corrective actions implemented. "
             "4. Define clear success criteria for restoration tests to objectively evaluate whether backups are valid and complete. "
             "5. Implement a ticketing system to formally document each periodic test and track any required remediation actions. "
             "6. Establish timeframes for addressing any issues identified during restoration testing. "
@@ -784,7 +810,7 @@ GAP_EXAMPLES = [
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
-            "1. Establish a formal procedure for obtaining SOC 1 Type II reports and bridge letters annually from all service organizations, designating specific responsibility to the Department Head, Controller, or VP of Finance, and IT Management. "
+            "1. Establish a formal procedure for obtaining SOC 1 Type II reports and bridge letters annually from all service organizations that are hosted or maintained by a third party service organization. "
             "2. Implement a structured process to review each SOC 1 report's period coverage, audit opinion (qualified or unqualified), and identified control exceptions or deficiencies. "
             "3. Develop a formal documentation template to record the review results for each service organization, including any exceptions requiring follow-up and their resolution status. "
             "4. Create a comprehensive mapping document that identifies all CUECs from each service organization's SOC 1 report and links them to existing controls within the company's environment. "
@@ -817,7 +843,7 @@ GAP_EXAMPLES = [
         ),
         recommendation=(
             "For the system(s) listed in column E, perform the following steps: "
-            "1. Establish a formal procedure for obtaining SOC 1 Type II reports and bridge letters annually from all service organizations, designating specific responsibility to the Department Head, Controller, or VP of Finance, and IT Management. "
+            "1. Establish a formal procedure for obtaining SOC 1 Type II reports and bridge letters annually from all service organizations that are hosted or maintained by a third party service organization. "
             "2. Implement a structured process to review each SOC 1 report's period coverage, audit opinion (qualified or unqualified), and identified control exceptions or deficiencies. "
             "3. Develop a formal documentation template to record the review results for each service organization, including any exceptions requiring follow-up and their resolution status. "
             "4. Create a comprehensive mapping document that identifies all CUECs from each service organization's SOC 1 report and links them to existing controls within the company's environment. "

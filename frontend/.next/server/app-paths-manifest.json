@@ -1,3 +1,9 @@
 {
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/resources/page": "app/resources/page.js",
+  "/rcm-builder/page": "app/rcm-builder/page.js",
+  "/my-upload-app/page": "app/my-upload-app/page.js",
+  "/gap-builder/page": "app/gap-builder/page.js",
+  "/rcm-converter/page": "app/rcm-converter/page.js",
+  "/rcm-testing/page": "app/rcm-testing/page.js"
 }
