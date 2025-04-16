@@ -82,58 +82,43 @@ def create_enhanced_prompt(transcript: str, section: str, question: str) -> str:
 
     prompt = f"""
     You are an IT audit specialist analyzing an ITGC walkthrough transcript.
-    
-    First, carefully review the transcript section for information ONLY about this specific question. Look for:
-        - Direct answers to the question
-        - Information that ONLY relates to this specific header
-        - Core process details without explanatory additions
+    Your goal is to accurately document the client's **current process** based **only** on information provided in the transcript.
 
-    Consider that:
-    - Relevant information might be mentioned as part of other related topics
-    - The answer might be split across different parts of the discussion
-    - Important details might be mentioned in passing while discussing other processes
-    
+    **IMPORTANT:** Focus on what the **client states they actually do**. If the transcript describes a process suggested by a consultant that the client is *not* currently doing, **ignore** that description and treat the process as not performed by the client. Only document processes the client confirms are their active practice.
+
+    First, review the transcript section for information related to the specific question below. Look for:
+        - Direct statements from the client about their current practices.
+        - Descriptions of the client's actual operational steps.
+
+    Consider that relevant information might be mentioned while discussing related topics or split across the conversation.
+
     Related questions that might contain relevant information:
     {related_questions}
-    
-    Only respond with "N/A - This information was not discussed in the walkthrough meeting transcript." if:
-    - You cannot find ANY relevant information about the topic anywhere in the provided text
-    - The topic is clearly not addressed in any way, direct or indirect
-    - After thorough search, no information can be pieced together from context
 
-    Guidelines:
-    - Provide only the most direct and relevant information
-    - Exclude tangential or related processes that belong to other questions
-    - Do not add explanatory text or examples unless absolutely necessary
-    - Do not make unsupported assumptions
-    - Do not invent processes or details
-    - Do not rely on industry standard practices unless specifically mentioned
+    Respond with "N/A - This information was not discussed in the walkthrough meeting transcript." only if:
+    - No information about the client's actual current process for this question is found.
+    - The client states they do not perform this process, or the only description is a suggestion they haven't adopted.
 
-    If you find relevant information in the transcript, follow these steps:
+    Guidelines for your response if information IS found:
+    - Provide direct, factual information about the client's **current** process.
+    - Exclude consultant suggestions not confirmed by the client.
+    - Be concise and focus on the client's actual practices mentioned in the transcript.
 
-    Step 1: Review the specific context for this question
+    Review the context for this question:
        - Purpose: {purpose}
        - Process Background: {process_background}
 
-    Step 2: Analyze the transcript section and provide a clear, factual response that:
-       - Uses information found in the transcript
-       - Includes specific quotes or references when available
-       - Maintains a professional and concise tone
-       - References specific details from the transcript
-       - Incorporates relevant context appropriately
-    
+    Analyze the transcript section based on the instructions above and provide a clear, factual response reflecting the client's **current state**.
+
     Question: {question}
 
     Transcript section:
     {transcript}
 
-    Before providing your response, verify that your answer:
-    1. Only includes information directly relevant to this specific question
-    2. Excludes information that would be more appropriate for other questions
-    3. Is as concise as possible while fully answering the question
-    4. You've thoroughly searched the entire text for relevant information
-    5. You've considered information mentioned in related contexts
-    6. You've only marked as N/A if absolutely no relevant information exists
+    Before responding, verify:
+    1. Does the answer describe the client's **actual current** process, not a suggestion?
+    2. Is the answer based solely on client-confirmed information from the transcript?
+    3. Is the answer concise and directly relevant to the question?
     """
     return prompt
 
@@ -158,8 +143,9 @@ def process_transcript(transcript: str) -> str:
                                 "You are an IT audit specialist analyzing ITGC walkthrough transcripts. "
                                 "Your primary directive is to ONLY use information explicitly stated in the transcript. "
                                 "You must not make assumptions or infer information that isn't directly discussed. "
-                                "If a topic isn't explicitly covered, respond with the exact N/A message. "
-                                "If the topic is discussed, provide only factual information directly from the transcript. "
+                                "**Crucially, differentiate between the client's description of their actual current process and any consultant suggestions or explanations of ideal processes.** "
+                                "If a topic isn't explicitly covered as the client's current practice, respond with the exact N/A message. "
+                                "If the topic is discussed as the client's current practice, provide only factual information directly from the transcript. "
                                 "Never generate responses based on typical practices or assumptions."
                             )
                         },
