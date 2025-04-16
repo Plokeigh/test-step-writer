@@ -12,6 +12,7 @@ RED_FILL = PatternFill(start_color="FFFF0000", end_color="FFFF0000", fill_type="
 GREEN_FILL = PatternFill(start_color="FF00FF00", end_color="FF00FF00", fill_type="solid")
 YELLOW_FILL = PatternFill(start_color="FFFFFF00", end_color="FFFFFF00", fill_type="solid")
 GREY_FILL = PatternFill(start_color="FFD3D3D3", end_color="FFD3D3D3", fill_type="solid")
+DARKER_GREY_FILL = PatternFill(start_color="FF808080", end_color="FF808080", fill_type="solid")
 DARK_GREEN_FILL = PatternFill(start_color="FF006400", end_color="FF006400", fill_type="solid")
 HEADER_FONT = Font(color="FF000000", bold=True, name='Arial', sz=10)
 CENTER_ALIGNMENT = Alignment(horizontal='center', vertical='center')
@@ -96,8 +97,13 @@ def process_rcm_file(input_file, template_file):
         
         # Load the template file
         workbook = openpyxl.load_workbook(template_file)
-        sheet = workbook.active
-        sheet.title = "RCM - High Level"
+        
+        # Select the correct sheet by name
+        sheet_name = "RCM - High Level"
+        if sheet_name not in workbook.sheetnames:
+            raise ValueError(f"Sheet '{sheet_name}' not found in the template file.")
+        sheet = workbook[sheet_name]
+        # sheet.title = "RCM - High Level" # No need to set title if we load by name
         
         # Find the row and column for mapping
         control_row = None
@@ -140,6 +146,13 @@ def process_rcm_file(input_file, template_file):
                 if system in system_controls and control_code in system_controls[system]:
                     gap_status = system_controls[system][control_code]
                     
+                    # Construct the full control ID string
+                    full_control_id = f"{control_code}-{system}"
+
+                    # Set cell value to the full control ID and center it
+                    cell.value = full_control_id 
+                    cell.alignment = CENTER_ALIGNMENT # Center the text
+
                     # Apply conditional formatting based on Gap Status
                     if isinstance(gap_status, str):
                         gap_status_lower = gap_status.lower().strip()
@@ -150,11 +163,14 @@ def process_rcm_file(input_file, template_file):
                         elif "informal process" in gap_status_lower:
                             cell.fill = YELLOW_FILL
                     else:
-                        # System doesn't have explicit status for this control
-                        cell.fill = GREY_FILL
+                        # System has the control, but status is unclear/missing
+                        cell.fill = DARKER_GREY_FILL 
                 else:
                     # System doesn't have this control
-                    cell.fill = GREY_FILL
+                    cell.fill = DARKER_GREY_FILL
+                    # Optionally clear the value if you don't want anything in grey cells
+                    # cell.value = None 
+                    # cell.alignment = None # Reset alignment if clearing value
         
         # Apply borders to the application columns from row 7 to 24
         border_start_row = 7
