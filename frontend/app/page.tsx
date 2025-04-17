@@ -32,20 +32,6 @@ export default function Home() {
       path: '/gap-builder',
       icon: '🔍',
       color: 'from-red-500 to-red-600'
-    },
-    {
-      name: 'RCM Testing Generator',
-      description: 'Generate testing templates from RCM files. Creates folders and Excel templates for each control ID.',
-      path: '/rcm-testing',
-      icon: '📊',
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      name: 'RCM Converter',
-      description: 'Convert a detailed Risk Control Matrix (RCM) into a high-level view by extracting control information and mapping it to a template.',
-      path: '/rcm-converter',
-      icon: '📈',
-      color: 'from-teal-500 to-teal-600'
     }
   ];
 

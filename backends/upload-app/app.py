@@ -7,6 +7,7 @@ import openai
 from docx import Document
 import traceback
 import logging
+import tempfile
 import openpyxl
 
 # Configure logging
@@ -28,13 +29,10 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 logger.debug(f"App.py - .env file location: {os.path.abspath('.env')}")
 logger.debug(f"App.py - API type: {openai.api_type}")
 logger.debug(f"App.py - API base: {openai.api_base}")
-logger.debug(f"App.py - Environment variable raw value: {os.environ.get('OPENAI_API_KEY')}")
 
-# Import your existing functions and data structures
+# Import the new processing function (will be created in transcript_processor.py)
 from transcript_processor import (
-    process_transcript,
-    parse_output,
-    update_template
+    generate_process_flow_doc
 )
 
 app = Flask(__name__)
@@ -53,29 +51,70 @@ CORS(app, resources={
 
 # Configuration
 UPLOAD_FOLDER = 'uploads'
-TEMPLATE_PATH = os.path.join('templates', 'Scoping Document.xlsx')
-ALLOWED_EXTENSIONS = {'docx'}
+ALLOWED_EXTENSIONS = {'docx', 'txt', 'xlsx'}
 
 # Create necessary directories
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs('templates', exist_ok=True)  # Ensure templates directory exists
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # Increase max size for potentially larger transcripts (32MB)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def read_docx(file_path):
-    """Read content from a Word document."""
+def read_file_content(file_path):
+    """Read content from a supported file type (.docx, .txt)."""
     try:
-        doc = Document(file_path)
-        full_text = []
-        for paragraph in doc.paragraphs:
-            full_text.append(paragraph.text)
-        return '\n'.join(full_text)
+        file_ext = file_path.rsplit('.', 1)[1].lower()
+        if file_ext == 'docx':
+            doc = Document(file_path)
+            full_text = [para.text for para in doc.paragraphs]
+            return '\n'.join(full_text)
+        elif file_ext == 'txt':
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        else:
+            raise ValueError(f"Unsupported file type: {file_ext}")
     except Exception as e:
-        logger.error(f"Error reading DOCX file: {str(e)}")
+        logger.error(f"Error reading file {file_path}: {str(e)}")
+        raise
+
+def read_agenda_excel(file_path):
+    """Read agenda from an Excel file (.xlsx).
+
+    Reads title from cell A1 and questions from A2, A3, ...
+
+    Returns:
+        tuple: (title: str, questions: list[str])
+    """
+    try:
+        workbook = openpyxl.load_workbook(file_path)
+        sheet = workbook.active
+
+        title = sheet['A1'].value
+        if not title:
+            title = "Walkthrough Summary" # Default title if A1 is empty
+            logger.warning("Agenda cell A1 is empty, using default title.")
+        else:
+            title = str(title).strip()
+
+        questions = []
+        row = 2 # Start reading questions from A2
+        while True:
+            cell_value = sheet[f'A{row}'].value
+            if cell_value is None or str(cell_value).strip() == "":
+                break # Stop if cell is empty
+            questions.append(str(cell_value).strip())
+            row += 1
+
+        if not questions:
+            raise ValueError("No questions found in agenda file starting from cell A2.")
+
+        logger.info(f"Read title '{title}' and {len(questions)} questions from agenda: {file_path}")
+        return title, questions
+
+    except Exception as e:
+        logger.error(f"Error reading agenda Excel file {file_path}: {str(e)}")
         raise
 
 @app.after_request
@@ -92,159 +131,132 @@ def after_request(response):
 
 @app.route('/upload', methods=['POST', 'OPTIONS'])
 def upload_file():
-    """Handle file uploads with detailed logging"""
+    """Handle transcript and agenda file uploads, process, and return Word doc."""
     logger.info("Received request to /upload endpoint")
-    logger.debug(f"Request headers: {dict(request.headers)}")
-    logger.debug(f"Request origin: {request.headers.get('Origin')}")
-    
+
     if request.method == 'OPTIONS':
         logger.debug("Handling OPTIONS request")
         return '', 204
-    
+
     logger.info("Processing POST request")
-    logger.debug(f"Files in request: {request.files}")
-    logger.debug(f"Form data in request: {request.form}")
-    
-    if 'file' not in request.files:
-        logger.error("No file part in the request")
-        return jsonify({'error': 'No file part'}), 400
-    
-    file = request.files['file']
-    logger.info(f"Received file: {file.filename}")
-    
-    if file.filename == '':
-        logger.error("No selected file")
-        return jsonify({'error': 'No selected file'}), 400
-    
-    # Add file size check here
-    file_contents = file.read()
-    file.seek(0)  # Reset file pointer after reading
-    
-    if len(file_contents) == 0:
-        logger.error("Uploaded file is empty")
-        return jsonify({'error': 'Uploaded file is empty'}), 400
-    
-    if file and allowed_file(file.filename):
+    logger.debug(f"Files in request: {list(request.files.keys())}")
+
+    if 'transcript' not in request.files or 'agenda' not in request.files:
+        logger.error("Missing 'transcript' or 'agenda' file part in the request")
+        return jsonify({'error': "Missing 'transcript' or 'agenda' file part"}), 400
+
+    transcript_file = request.files['transcript']
+    agenda_file = request.files['agenda']
+
+    logger.info(f"Received transcript: {transcript_file.filename}")
+    logger.info(f"Received agenda: {agenda_file.filename}")
+
+    if transcript_file.filename == '' or agenda_file.filename == '':
+        logger.error("One or both files not selected")
+        return jsonify({'error': 'No selected file for transcript or agenda'}), 400
+
+    # Read file contents immediately for size check
+    transcript_contents = transcript_file.read()
+    agenda_contents = agenda_file.read()
+    transcript_file.seek(0) # Reset file pointer
+    agenda_file.seek(0)
+
+    if not transcript_contents or not agenda_contents:
+         logger.error("One or both uploaded files are empty")
+         return jsonify({'error': 'Uploaded transcript or agenda file is empty'}), 400
+
+    transcript_filepath = None
+    agenda_filepath = None
+    output_doc_path = None
+
+    if transcript_file and allowed_file(transcript_file.filename) and \
+       agenda_file and allowed_file(agenda_file.filename):
         try:
-            # Save the uploaded file
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            logger.info(f"Saving file to: {filepath}")
-            file.save(filepath)
-            
-            # Process the transcript
-            logger.info("Reading DOCX file")
-            transcript_text = read_docx(filepath)
-            
-            logger.info("Processing transcript with GPT")
-            output = process_transcript(transcript_text)
-            
-            logger.info("Parsing GPT output")
-            data = parse_output(output)
-            
-            # Update the template
-            logger.info(f"Updating template at: {os.path.abspath(TEMPLATE_PATH)}")
-            update_template(data, TEMPLATE_PATH)
-            logger.info("Template updated successfully")
-            
-            # Clean up the uploaded file
-            os.remove(filepath)
-            logger.info("Cleaned up temporary file")
-            
-            # Return the updated Excel template as a download
+            # Save uploaded files temporarily
+            transcript_filename = secure_filename(transcript_file.filename)
+            agenda_filename = secure_filename(agenda_file.filename)
+
+            transcript_filepath = os.path.join(app.config['UPLOAD_FOLDER'], transcript_filename)
+            agenda_filepath = os.path.join(app.config['UPLOAD_FOLDER'], agenda_filename)
+
+            logger.info(f"Saving transcript to: {transcript_filepath}")
+            transcript_file.save(transcript_filepath)
+            logger.info(f"Saving agenda to: {agenda_filepath}")
+            agenda_file.save(agenda_filepath)
+
+            # Read file contents
+            logger.info("Reading transcript file content")
+            transcript_text = read_file_content(transcript_filepath)
+            logger.info("Reading agenda file content")
+            agenda_title, agenda_questions = read_agenda_excel(agenda_filepath)
+
+            # Process transcript and agenda to generate Word doc
+            logger.info("Processing transcript and agenda to generate Word document")
+            # This function should return the path to the generated .docx file
+            output_doc_path = generate_process_flow_doc(transcript_text, agenda_title, agenda_questions)
+            logger.info(f"Generated Word document at: {output_doc_path}")
+
+            # Send the generated Word document
             return send_file(
-                TEMPLATE_PATH,
+                output_doc_path,
                 as_attachment=True,
-                download_name="Scoping Document - Updated.xlsx",
-                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                download_name="Processed_Walkthrough.docx",
+                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             )
-            
+
         except Exception as e:
-            logger.error(f"Error processing file: {str(e)}")
+            logger.error(f"Error processing files: {str(e)}")
             logger.error(f"Traceback: {traceback.format_exc()}")
-            # Clean up on error
-            if 'filepath' in locals() and os.path.exists(filepath):
-                os.remove(filepath)
-                logger.info("Cleaned up temporary file after error")
             return jsonify({
-                'error': str(e),
-                'traceback': traceback.format_exc()
+                'error': f"An error occurred during processing: {str(e)}",
             }), 500
-    
-    logger.error(f"Invalid file type: {file.filename}")
-    return jsonify({'error': 'Invalid file type'}), 400
+        finally:
+            # Clean up uploaded files and generated doc
+            if transcript_filepath and os.path.exists(transcript_filepath):
+                os.remove(transcript_filepath)
+                logger.info(f"Cleaned up temporary transcript file: {transcript_filepath}")
+            if agenda_filepath and os.path.exists(agenda_filepath):
+                os.remove(agenda_filepath)
+                logger.info(f"Cleaned up temporary agenda file: {agenda_filepath}")
+            if output_doc_path and os.path.exists(output_doc_path):
+                 try:
+                     os.remove(output_doc_path)
+                     logger.info(f"Cleaned up generated Word document: {output_doc_path}")
+                 except Exception as remove_err:
+                     logger.error(f"Error cleaning up generated file {output_doc_path}: {remove_err}")
+
+    else:
+        allowed_types = ", ".join(ALLOWED_EXTENSIONS)
+        error_msg = f"Invalid file type. Allowed types: {allowed_types}"
+        logger.error(error_msg)
+        # Check which file caused the error
+        if not allowed_file(transcript_file.filename):
+            error_msg += f" (Transcript: {transcript_file.filename})"
+        if not allowed_file(agenda_file.filename):
+            error_msg += f" (Agenda: {agenda_file.filename})"
+        return jsonify({'error': error_msg}), 400
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Simple health check endpoint with detailed status"""
+    """Simple health check endpoint."""
     logger.info("Health check requested")
-    origin = request.headers.get('Origin')
-    logger.debug(f"Health check origin: {origin}")
-    
-    template_exists = os.path.exists(TEMPLATE_PATH)
-    template_size = os.path.getsize(TEMPLATE_PATH) if template_exists else 0
-    
     status = {
         'status': 'healthy',
-        'template': {
-            'exists': template_exists,
-            'path': os.path.abspath(TEMPLATE_PATH),
-            'size': template_size
-        },
         'upload_folder_exists': os.path.exists(UPLOAD_FOLDER),
         'openai_key_configured': bool(openai.api_key)
     }
     logger.debug(f"Health status: {status}")
     return jsonify(status), 200
 
-@app.route('/clear-template', methods=['POST'])
-def clear_template():
-    """Clear all data from template except headers."""
-    logger.info("Received request to clear template")
-    
-    if not os.path.exists(TEMPLATE_PATH):
-        logger.error("Template file not found")
-        return jsonify({'error': 'Template file not found'}), 404
-    
-    try:
-        wb = openpyxl.load_workbook(TEMPLATE_PATH)
-        sheet = wb.active
-        
-        # Keep the header row and delete everything else
-        if sheet.max_row > 1:  # Only delete if there are rows beyond the header
-            sheet.delete_rows(2, sheet.max_row - 1)
-        
-        wb.save(TEMPLATE_PATH)
-        logger.info("Template cleared successfully")
-        
-        return jsonify({'message': 'Template cleared successfully'}), 200
-        
-    except Exception as e:
-        logger.error(f"Error clearing template: {str(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({
-            'error': str(e),
-            'traceback': traceback.format_exc()
-        }), 500
-
 # Startup checks
 def run_startup_checks():
     """Perform startup checks and log results"""
     logger.info("Running startup checks...")
-    
-    if not os.path.exists('templates'):
-        logger.info("Creating templates directory")
-        os.makedirs('templates', exist_ok=True)
-    
-    if not os.path.exists(TEMPLATE_PATH):
-        logger.warning(f"Template file not found at {os.path.abspath(TEMPLATE_PATH)}")
-    else:
-        logger.info(f"Template file found at {os.path.abspath(TEMPLATE_PATH)}")
-    
+
     if not os.path.exists(UPLOAD_FOLDER):
         logger.info(f"Creating upload folder at {os.path.abspath(UPLOAD_FOLDER)}")
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-    
+
     if not openai.api_key:
         logger.warning("OpenAI API key not configured")
     else:
@@ -253,5 +265,5 @@ def run_startup_checks():
 if __name__ == '__main__':
     run_startup_checks()
     logger.info("Starting Flask server...")
-    # Enable debug mode for detailed error messages
+    # Enable debug mode for detailed error messages during development
     app.run(debug=True, port=3002, host='localhost')

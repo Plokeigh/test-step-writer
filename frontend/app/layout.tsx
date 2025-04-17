@@ -39,12 +39,7 @@ export default function RootLayout({
                 <Link href="/gap-builder" className="px-3 py-2 rounded-md bg-red-100 text-red-700 hover:bg-red-200 font-medium transition-colors">
                   Gap Builder
                 </Link>
-                <Link href="/rcm-testing" className="px-3 py-2 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200 font-medium transition-colors">
-                  RCM Testing Generator
-                </Link>
-                <Link href="/rcm-converter" className="px-3 py-2 rounded-md bg-teal-100 text-teal-700 hover:bg-teal-200 font-medium transition-colors">
-                  RCM Converter
-                </Link>
+                {/* RCM related links removed */}
               </div>
             </div>
           </div>
