@@ -39,7 +39,9 @@ export default function RootLayout({
                 <Link href="/gap-builder" className="px-3 py-2 rounded-md bg-red-100 text-red-700 hover:bg-red-200 font-medium transition-colors">
                   Gap Builder
                 </Link>
-                {/* RCM related links removed */}
+                <Link href="/flowchart-creator" className="px-3 py-2 rounded-md bg-purple-100 text-purple-700 hover:bg-purple-200 font-medium transition-colors">
+                  Flowchart Creator
+                </Link>
               </div>
             </div>
           </div>

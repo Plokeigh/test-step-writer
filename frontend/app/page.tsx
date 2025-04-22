@@ -14,14 +14,14 @@ export default function Home() {
     },
     {
       name: 'Scoping Doc Builder',
-      description: 'Efficiently upload and manage your files with our intuitive file management system.',
+      description: 'Upload meeting transcripts and agenda files to generate a structured Word document summarizing the discussion based on agenda questions.',
       path: '/my-upload-app',
       icon: '📤',
       color: 'from-emerald-500 to-emerald-600'
     },
     {
       name: 'RCM Builder',
-      description: 'Build and manage RCM configurations with ease. Create, edit, and deploy configurations in a user-friendly interface.',
+      description: 'Build and manage Risk Control Matrix (RCM) configurations with ease using an Excel scoping document.',
       path: '/rcm-builder',
       icon: '🔧',
       color: 'from-blue-500 to-blue-600'
@@ -32,6 +32,13 @@ export default function Home() {
       path: '/gap-builder',
       icon: '🔍',
       color: 'from-red-500 to-red-600'
+    },
+    {
+      name: 'Flowchart Creator',
+      description: 'Upload a Word document containing process descriptions (e.g., from the Scoping Doc Builder) to generate Mermaid flowchart code for visualization.',
+      path: '/flowchart-creator',
+      icon: '📊',
+      color: 'from-purple-500 to-purple-600'
     }
   ];
 
@@ -56,11 +63,11 @@ export default function Home() {
 
       {/* Tools Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {tools.map((tool) => (
             <div
               key={tool.name}
-              className="animate-fade-in"
+              className="animate-fade-in lg:col-span-1"
             >
               <Link
                 href={tool.path}

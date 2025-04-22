@@ -79,8 +79,8 @@ def read_file_content(file_path):
         logger.error(f"Error reading file {file_path}: {str(e)}")
         raise
 
-def read_agenda_excel(file_path):
-    """Read agenda from an Excel file (.xlsx).
+def read_agenda_excel(file_obj_or_path):
+    """Read agenda from an Excel file (.xlsx) provided as a path or file-like object.
 
     Reads title from cell A1 and questions from A2, A3, ...
 
@@ -88,7 +88,8 @@ def read_agenda_excel(file_path):
         tuple: (title: str, questions: list[str])
     """
     try:
-        workbook = openpyxl.load_workbook(file_path)
+        # openpyxl can load directly from a file-like object or path
+        workbook = openpyxl.load_workbook(file_obj_or_path)
         sheet = workbook.active
 
         title = sheet['A1'].value
@@ -110,11 +111,14 @@ def read_agenda_excel(file_path):
         if not questions:
             raise ValueError("No questions found in agenda file starting from cell A2.")
 
-        logger.info(f"Read title '{title}' and {len(questions)} questions from agenda: {file_path}")
+        # Determine if input was path or object for logging
+        log_source = getattr(file_obj_or_path, 'filename', file_obj_or_path) # Use filename if available, else the path itself
+        logger.info(f"Read title '{title}' and {len(questions)} questions from agenda: {log_source}")
+        workbook.close()
         return title, questions
 
     except Exception as e:
-        logger.error(f"Error reading agenda Excel file {file_path}: {str(e)}")
+        logger.error(f"Error reading agenda Excel file {file_obj_or_path}: {str(e)}")
         raise
 
 @app.after_request
@@ -181,14 +185,21 @@ def upload_file():
 
             logger.info(f"Saving transcript to: {transcript_filepath}")
             transcript_file.save(transcript_filepath)
-            logger.info(f"Saving agenda to: {agenda_filepath}")
-            agenda_file.save(agenda_filepath)
+            # logger.info(f"Saving agenda to: {agenda_filepath}") # No longer saving agenda
+            # agenda_file.save(agenda_filepath) # <--- REMOVE THIS LINE
+
+            # Explicitly delete Flask file objects after saving/using
+            del transcript_file
+            # Keep agenda_file object reference until after it's read
 
             # Read file contents
             logger.info("Reading transcript file content")
             transcript_text = read_file_content(transcript_filepath)
-            logger.info("Reading agenda file content")
-            agenda_title, agenda_questions = read_agenda_excel(agenda_filepath)
+            logger.info("Reading agenda file content directly from object")
+            agenda_title, agenda_questions = read_agenda_excel(agenda_file) # <--- Pass file object directly
+
+            # Now we can delete the agenda_file reference
+            del agenda_file
 
             # Process transcript and agenda to generate Word doc
             logger.info("Processing transcript and agenda to generate Word document")

@@ -36,21 +36,25 @@ def get_answer_from_transcript(transcript: str, question: str) -> str:
         logger.error("OpenAI API key not configured.")
         return "Error: OpenAI API key not configured."
 
-    system_prompt = ("""You are an AI assistant specialized in analyzing financial process walkthrough transcripts. 
-Your task is to answer specific questions based ONLY on the provided transcript text. 
-Format the answer as a detailed process flow, highlighting:
+    system_prompt = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts.
+Your task is to answer specific questions based *exclusively* on the provided transcript text. Focus ONLY on information that directly answers the specific question asked.
 
+Format the answer as a detailed process flow, highlighting:
 1.  **Sequence of Steps:** Clearly outline the order of actions.
 2.  **Individuals Involved:** Identify roles (e.g., preparer, reviewer, approver) and specific actions they perform.
 3.  **Systems/Applications/Tools:** Mention any software or tools used at each step (e.g., NetSuite, Concur, ADP, Excel).
 4.  **Key Controls/Actions:** Describe significant actions, checks, or controls performed within the process.
 
-Structure the response clearly. Use bullet points or numbered lists for steps if appropriate. 
-If the transcript explicitly states the information for the question is not available or the process described doesn't apply, state that clearly. 
-Do not invent information or make assumptions beyond the transcript content.""")
+**Crucially:**
+- Only include details that directly address the question.
+- Avoid including information about related processes or topics, even if mentioned nearby in the transcript, if they do not directly answer the *specific question*. Other questions may cover those related details.
+- Be concise. Your primary goal is to answer the question asked using only the directly relevant transcript text.
+- Structure the response clearly. Use bullet points or numbered lists for steps if appropriate.
+- If the transcript explicitly states the information for the question is not available or the process described doesn't apply, state that clearly.
+- Do not invent information or make assumptions beyond the transcript content."""
 
     # Rewritten user_prompt using a single multi-line f-string
-    user_prompt = f"""Based *only* on the following transcript, please answer the question below. 
+    user_prompt = f"""Based *only* on the following transcript, please answer the question below.
 Format your answer as a detailed process flow as described in the system prompt.
 
 **Transcript:**
