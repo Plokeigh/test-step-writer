@@ -28,15 +28,8 @@ logger.debug(f"Transcript_processor.py - API version: {openai.api_version}")
 logger.debug(f"Transcript_processor.py - Engine: {OPENAI_ENGINE}")
 logger.debug(f"Transcript_processor.py - API Key Loaded: {bool(openai.api_key)}")
 
-def get_answer_from_transcript(transcript: str, question: str) -> str:
-    """Uses OpenAI to find the answer to a specific question within the transcript
-       and format it as a process flow.
-    """
-    if not openai.api_key:
-        logger.error("OpenAI API key not configured.")
-        return "Error: OpenAI API key not configured."
-
-    system_prompt = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts.
+# --- Define System Prompts ---
+PROCESS_RESPONSE_SYSTEM_PROMPT = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts.
 Your task is to answer specific questions based *exclusively* on the provided transcript text. Focus ONLY on information that directly answers the specific question asked.
 
 Format the answer as a detailed process flow, highlighting:
@@ -53,8 +46,52 @@ Format the answer as a detailed process flow, highlighting:
 - If the transcript explicitly states the information for the question is not available or the process described doesn't apply, state that clearly.
 - Do not invent information or make assumptions beyond the transcript content."""
 
-    # Rewritten user_prompt using a single multi-line f-string
-    user_prompt = f"""Based *only* on the following transcript, please answer the question below.
+NORMAL_RESPONSE_SYSTEM_PROMPT = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts.
+Your task is to answer specific questions based *exclusively* on the provided transcript text.
+
+**Instructions:**
+- Provide a direct and concise answer to the question using ONLY the information explicitly stated in the transcript.
+- Do NOT format the answer as a process flow.
+- Do NOT include sections like 'Sequence of Steps', 'Individuals Involved', etc.
+- Focus solely on extracting the information that directly answers the question.
+- If the transcript explicitly states the information for the question is not available, state that clearly.
+- Do not invent information or make assumptions beyond the transcript content.
+- Avoid introductory phrases like "Based on the transcript..." unless necessary for clarity.
+- Write the answer in plain text or simple bullet points if multiple distinct points are required."""
+
+# --- End Define System Prompts ---
+
+def get_answer_from_transcript(transcript: str, question: str, question_type: str) -> str:
+    """Uses OpenAI to find the answer to a specific question within the transcript,
+       selecting the appropriate prompt based on the question_type.
+
+    Args:
+        transcript: The full text of the meeting transcript.
+        question: The specific question to answer.
+        question_type: The type of question ('Normal Response' or 'Process Response').
+
+    Returns:
+        The formatted answer string or an error message.
+    """
+    if not openai.api_key:
+        logger.error("OpenAI API key not configured.")
+        return "Error: OpenAI API key not configured."
+
+    # Select the appropriate system prompt based on the question type
+    if question_type == "Normal Response":
+        system_prompt = NORMAL_RESPONSE_SYSTEM_PROMPT
+        user_prompt_format = f"""Based *only* on the following transcript, please provide a direct and concise answer to the question below.
+
+**Transcript:**
+{transcript}
+
+**Question:** {question}
+
+**Direct Answer:**"""
+        logger.debug(f"Using NORMAL response prompt for question: {question[:50]}...")
+    elif question_type == "Process Response":
+        system_prompt = PROCESS_RESPONSE_SYSTEM_PROMPT
+        user_prompt_format = f"""Based *only* on the following transcript, please answer the question below.
 Format your answer as a detailed process flow as described in the system prompt.
 
 **Transcript:**
@@ -63,6 +100,23 @@ Format your answer as a detailed process flow as described in the system prompt.
 **Question:** {question}
 
 **Formatted Answer (Process Flow):**"""
+        logger.debug(f"Using PROCESS response prompt for question: {question[:50]}...")
+    else:
+        logger.warning(f"Unknown question type '{question_type}' for question: {question[:50]}... Defaulting to Process Response.")
+        # Default to process response or handle as an error if preferred
+        system_prompt = PROCESS_RESPONSE_SYSTEM_PROMPT
+        user_prompt_format = f"""Based *only* on the following transcript, please answer the question below.
+Format your answer as a detailed process flow as described in the system prompt.
+
+**Transcript:**
+{transcript}
+
+**Question:** {question}
+
+**Formatted Answer (Process Flow):**"""
+
+    # Format the user prompt
+    user_prompt = user_prompt_format.format(transcript=transcript, question=question)
 
     try:
         logger.debug(f"Sending request to OpenAI for question: {question[:50]}...")
@@ -86,50 +140,47 @@ Format your answer as a detailed process flow as described in the system prompt.
         logger.error(traceback.format_exc())
         return f"Error processing question: {str(e)}"
 
-def generate_process_flow_doc(transcript_text: str, title: str, questions: list[str]) -> str:
-    """Processes transcript against agenda questions and generates a Word document.
+def generate_process_flow_doc(transcript_text: str, title: str, questions: list[tuple[str, str]]) -> str:
+    """Processes transcript against questions (with types) and generates a Word document.
 
     Args:
         transcript_text: The full text of the meeting transcript.
         title: The title for the document (from agenda A1).
-        questions: A list of questions (from agenda A2 onwards).
+        questions: A list of tuples, where each tuple contains (question_text, question_type).
+                   Example: [('What is limit?', 'Normal Response'), ('Describe process?', 'Process Response')]
 
     Returns:
         The file path to the generated Word document in a temporary directory.
     """
     logger.info("Starting process flow document generation.")
 
-    # Questions list is now passed directly
     if not questions:
-        # This check should ideally be done in app.py after reading the excel
-        raise ValueError("Agenda question list is empty.")
+        raise ValueError("Question list is empty.")
 
     logger.info(f"Generating document titled '{title}' with {len(questions)} questions.")
 
-    # Create a new Word document
     document = Document()
-    # Use the title from the agenda file
     document.add_heading(title, level=0)
 
     # Process each question from the list
-    for i, question in enumerate(questions):
-        logger.info(f"Processing question {i+1}/{len(questions)}: {question[:100]}...")
+    for i, (question_text, question_type) in enumerate(questions): # <-- Unpack tuple
+        logger.info(f"Processing question {i+1}/{len(questions)} (Type: {question_type}): {question_text[:100]}...")
 
         # Add the question to the document
-        document.add_heading(f"Question {i+1}: {question}", level=2)
+        document.add_heading(f"Question {i+1}: {question_text}", level=2) # <-- Use question_text
 
-        # Get the formatted answer from AI
-        answer = get_answer_from_transcript(transcript_text, question)
+        # Get the formatted answer from AI, passing the type
+        answer = get_answer_from_transcript(transcript_text, question_text, question_type) # <-- Pass type
 
-        # --- Add these lines to clean the answer ---
-        # Remove ### heading markers
-        cleaned_answer = re.sub(r'^###\s+', '', answer, flags=re.MULTILINE)
-        # Remove ** bold markers
-        cleaned_answer = re.sub(r'\*\*(.*?)\*\*', r'\1', cleaned_answer)
-        # --- End of added lines ---
+        # --- Clean the answer (removes markdown common in AI responses) ---
+        cleaned_answer = re.sub(r'^###\s+', '', answer, flags=re.MULTILINE) # Remove ### headings
+        cleaned_answer = re.sub(r'\*\*(.*?)\*\*', r'\1', cleaned_answer) # Remove **bold**
+        cleaned_answer = re.sub(r'^#+\s+', '', cleaned_answer, flags=re.MULTILINE) # Remove other # headings
+        cleaned_answer = re.sub(r'^-\s+', '', cleaned_answer, flags=re.MULTILINE) # Remove leading hyphens if desired (optional)
+        # --- End cleaning ---
 
         # Add the cleaned answer to the document
-        document.add_paragraph(cleaned_answer) # <-- Use cleaned_answer here
+        document.add_paragraph(cleaned_answer)
         document.add_paragraph() # Add a blank line for spacing
 
     # Save the document to a temporary file
