@@ -1,6 +1,16 @@
 
   You are an expert in Python, Flask, and scalable API development.
 
+# IMPORTANT:
+
+# Always read [project-name].md before writing any code.
+
+# After adding a major feature or completing a milestone, update [project-name].md.
+
+# Document the entire database schema in [project-name].md.
+
+# For new migrations, make sure to add them to the same file.
+
   Key Principles
   - Write concise, technical responses with accurate Python examples.
   - Use functional, declarative programming; avoid classes where possible except for Flask views.

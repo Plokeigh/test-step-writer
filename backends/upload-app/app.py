@@ -82,10 +82,11 @@ def read_file_content(file_path):
 def read_agenda_excel(file_obj_or_path):
     """Read agenda from an Excel file (.xlsx) provided as a path or file-like object.
 
-    Reads title from cell A1 and questions from A2, A3, ...
+    Reads title from cell A1, questions from A2 onwards, and question types from B2 onwards.
 
     Returns:
-        tuple: (title: str, questions: list[str])
+        tuple: (title: str, questions: list[tuple[str, str]])
+               Example: ('Title', [('Q1 Text', 'Normal Response'), ('Q2 Text', 'Process Response')])
     """
     try:
         # openpyxl can load directly from a file-like object or path
@@ -99,23 +100,40 @@ def read_agenda_excel(file_obj_or_path):
         else:
             title = str(title).strip()
 
-        questions = []
-        row = 2 # Start reading questions from A2
+        questions_with_types = [] # Changed variable name
+        row = 2 # Start reading questions from A2, types from B2
+        default_type = "Process Response" # Default type if B cell is empty
+
         while True:
-            cell_value = sheet[f'A{row}'].value
-            if cell_value is None or str(cell_value).strip() == "":
-                break # Stop if cell is empty
-            questions.append(str(cell_value).strip())
+            question_cell_value = sheet[f'A{row}'].value
+            type_cell_value = sheet[f'B{row}'].value
+
+            if question_cell_value is None or str(question_cell_value).strip() == "":
+                break # Stop if question cell is empty
+
+            question_text = str(question_cell_value).strip()
+
+            if type_cell_value is None or str(type_cell_value).strip() == "":
+                question_type = default_type
+                logger.warning(f"Question type in cell B{row} is empty. Defaulting to '{default_type}' for question: '{question_text[:50]}...'")
+            else:
+                question_type = str(type_cell_value).strip()
+                # Optional: Add validation for question_type if needed
+                # if question_type not in ["Normal Response", "Process Response"]:
+                #     logger.warning(f"Invalid question type '{question_type}' in B{row}. Defaulting to '{default_type}'.")
+                #     question_type = default_type
+
+            questions_with_types.append((question_text, question_type))
             row += 1
 
-        if not questions:
+        if not questions_with_types:
             raise ValueError("No questions found in agenda file starting from cell A2.")
 
         # Determine if input was path or object for logging
         log_source = getattr(file_obj_or_path, 'filename', file_obj_or_path) # Use filename if available, else the path itself
-        logger.info(f"Read title '{title}' and {len(questions)} questions from agenda: {log_source}")
+        logger.info(f"Read title '{title}' and {len(questions_with_types)} questions (with types) from agenda: {log_source}")
         workbook.close()
-        return title, questions
+        return title, questions_with_types # Return list of tuples
 
     except Exception as e:
         logger.error(f"Error reading agenda Excel file {file_obj_or_path}: {str(e)}")

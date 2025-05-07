@@ -29,35 +29,49 @@ logger.debug(f"Transcript_processor.py - Engine: {OPENAI_ENGINE}")
 logger.debug(f"Transcript_processor.py - API Key Loaded: {bool(openai.api_key)}")
 
 # --- Define System Prompts ---
-PROCESS_RESPONSE_SYSTEM_PROMPT = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts.
-Your task is to answer specific questions based *exclusively* on the provided transcript text. Focus ONLY on information that directly answers the specific question asked.
+PROCESS_RESPONSE_SYSTEM_PROMPT = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts for the purpose of documenting Financial SOX (Sarbanes-Oxley) processes and controls.
+Your task is to answer specific questions based *exclusively* on the provided transcript text. Focus ONLY on information that directly answers the specific question asked, keeping in mind the SOX context.
 
 Format the answer as a detailed process flow, highlighting:
 1.  **Sequence of Steps:** Clearly outline the order of actions.
-2.  **Individuals Involved:** Identify roles (e.g., preparer, reviewer, approver) and specific actions they perform.
-3.  **Systems/Applications/Tools:** Mention any software or tools used at each step (e.g., NetSuite, Concur, ADP, Excel).
-4.  **Key Controls/Actions:** Describe significant actions, checks, or controls performed within the process.
+2.  **Individuals Involved:** Identify roles (e.g., preparer, reviewer, approver) and specific actions they perform, relevant to their responsibilities in a SOX process.
+3.  **Systems/Applications/Tools:** Mention any software or tools used at each step (e.g., NetSuite, Concur, ADP, Excel), noting their role in the control environment if specified.
+4.  **Key Controls/Actions:** Describe significant actions, checks, or controls performed within the process. This is crucial for SOX documentation, so be thorough in capturing control activities mentioned.
 
 **Crucially:**
-- Only include details that directly address the question.
+- Only include details that directly address the question from a SOX process perspective.
 - Avoid including information about related processes or topics, even if mentioned nearby in the transcript, if they do not directly answer the *specific question*. Other questions may cover those related details.
 - Be concise. Your primary goal is to answer the question asked using only the directly relevant transcript text.
 - Structure the response clearly. Use bullet points or numbered lists for steps if appropriate.
 - If the transcript explicitly states the information for the question is not available or the process described doesn't apply, state that clearly.
 - Do not invent information or make assumptions beyond the transcript content."""
 
-NORMAL_RESPONSE_SYSTEM_PROMPT = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts.
-Your task is to answer specific questions based *exclusively* on the provided transcript text.
+NORMAL_RESPONSE_SYSTEM_PROMPT = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts, with a focus on supporting Financial SOX (Sarbanes-Oxley) process documentation.
+Your task is to answer specific questions based *exclusively* on the provided transcript text. Please be mindful of information that could be relevant to understanding SOX controls or process steps.
 
 **Instructions:**
 - Provide a direct and concise answer to the question using ONLY the information explicitly stated in the transcript.
 - Do NOT format the answer as a process flow.
 - Do NOT include sections like 'Sequence of Steps', 'Individuals Involved', etc.
-- Focus solely on extracting the information that directly answers the question.
+- Focus solely on extracting the information that directly answers the question, paying attention to details pertinent to financial controls if mentioned.
 - If the transcript explicitly states the information for the question is not available, state that clearly.
-- Do not invent information or make assumptions beyond the transcript content.
-- Avoid introductory phrases like "Based on the transcript..." unless necessary for clarity.
-- Write the answer in plain text or simple bullet points if multiple distinct points are required."""
+- Do not invent information or make assumptions beyond the transcript content."""
+
+OTHER_TOPICS_SYSTEM_PROMPT = """You are an AI assistant skilled at analyzing financial transcripts for the purpose of enhancing Financial SOX (Sarbanes-Oxley) process documentation.
+Your task is to identify and list any accounting-related topics discussed in the provided 'Transcript' that are NOT already covered by the 'Provided Answers'. These topics should ideally be relevant from a SOX perspective, such as unaddressed controls, risks, or process steps.
+
+Output Instructions:
+1.  Carefully compare the 'Transcript' against the 'Provided Answers'.
+2.  For each accounting-related topic or process found in the 'Transcript' but missing from the 'Provided Answers' (especially those pertinent to SOX controls or financial reporting risks):
+    *   Start with a primary bullet point stating the topic.
+    *   Under this, use indented sub-bullets to provide as much detail as possible about this topic directly from the transcript. This includes any mentioned processes, controls, systems involved, roles, or accounting treatment that would be valuable for SOX documentation.
+3.  Crucially, your response should ONLY contain these identified topics and their details, formatted as described.
+4.  Do NOT include introductory phrases, meta-commentary like "The transcript mentions," or "This topic was not covered."
+5.  Exclude all non-accounting related discussions (e.g., personal chats, off-topic remarks).
+6.  If, after careful review, absolutely no additional accounting-related topics relevant to SOX are found that are not in the 'Provided Answers', then and only then, respond with the exact phrase: 'No additional accounting-related topics were identified.'
+
+Focus on extracting and presenting information valuable for understanding the process from a SOX control standpoint.
+"""
 
 # --- End Define System Prompts ---
 
@@ -127,7 +141,7 @@ Format your answer as a detailed process flow as described in the system prompt.
                 {"role": "user", "content": user_prompt}
             ],
             max_tokens=1000, # Adjust as needed
-            temperature=0.2, # Lower temperature for more factual responses
+            temperature=0.1, # Lower temperature for more factual responses
             top_p=0.95,
             frequency_penalty=0,
             presence_penalty=0
@@ -139,6 +153,37 @@ Format your answer as a detailed process flow as described in the system prompt.
         logger.error(f"Error calling OpenAI API for question '{question[:50]}...': {str(e)}")
         logger.error(traceback.format_exc())
         return f"Error processing question: {str(e)}"
+
+# Insert helper function to identify other accounting-related topics
+def get_other_topics(transcript: str, provided_answers: str) -> str:
+    user_prompt = f"""Please review the 'Transcript' and 'Provided Answers' below.
+Identify and detail any additional accounting-related topics from the transcript that are not covered in the answers, following the system prompt's output instructions.
+
+Transcript:
+'''{transcript}'''
+
+Provided Answers:
+'''{provided_answers}'''
+
+Additional Accounting-Related Topics Discovered:"""
+    try:
+        response = openai.ChatCompletion.create(
+            engine=OPENAI_ENGINE,
+            messages=[
+                {"role": "system", "content": OTHER_TOPICS_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ],
+            max_tokens=1000,
+            temperature=0.2,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+        return response.choices[0].message['content'].strip()
+    except Exception as e:
+        logger.error(f"Error identifying other topics: {str(e)}")
+        logger.error(traceback.format_exc())
+        return f"Error identifying other topics: {str(e)}"
 
 def generate_process_flow_doc(transcript_text: str, title: str, questions: list[tuple[str, str]]) -> str:
     """Processes transcript against questions (with types) and generates a Word document.
@@ -161,6 +206,7 @@ def generate_process_flow_doc(transcript_text: str, title: str, questions: list[
 
     document = Document()
     document.add_heading(title, level=0)
+    all_answers_combined = ""  # To store all answers for later comparison
 
     # Process each question from the list
     for i, (question_text, question_type) in enumerate(questions): # <-- Unpack tuple
@@ -182,6 +228,14 @@ def generate_process_flow_doc(transcript_text: str, title: str, questions: list[
         # Add the cleaned answer to the document
         document.add_paragraph(cleaned_answer)
         document.add_paragraph() # Add a blank line for spacing
+        all_answers_combined += f"Question: {question_text}\nAnswer: {cleaned_answer}\n\n"
+
+    # --- New Step: Identify Other Topics ---
+    logger.info("Identifying other accounting-related topics not covered by questions.")
+    other_topics = get_other_topics(transcript_text, all_answers_combined)
+
+    document.add_heading("Other Topics Discussed During the Meeting", level=1)
+    document.add_paragraph(other_topics)
 
     # Save the document to a temporary file
     try:
