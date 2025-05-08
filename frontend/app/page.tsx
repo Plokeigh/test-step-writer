@@ -19,27 +19,6 @@ export default function Home() {
       icon: '📤',
       color: 'from-emerald-500 to-emerald-600'
     },
-    {
-      name: 'RCM Builder',
-      description: 'Build and manage Risk Control Matrix (RCM) configurations with ease using an Excel scoping document.',
-      path: '/rcm-builder',
-      icon: '🔧',
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      name: 'Gap Builder',
-      description: 'Generate gap analysis and recommendations for IT General Controls (ITGC). Upload your control assessment templates and get AI-generated gap descriptions and remediation plans.',
-      path: '/gap-builder',
-      icon: '🔍',
-      color: 'from-red-500 to-red-600'
-    },
-    {
-      name: 'Flowchart Creator',
-      description: 'Upload a Word document containing process descriptions (e.g., from the Scoping Doc Builder) to generate Mermaid flowchart code for visualization.',
-      path: '/flowchart-creator',
-      icon: '📊',
-      color: 'from-purple-500 to-purple-600'
-    }
   ];
 
   return (
