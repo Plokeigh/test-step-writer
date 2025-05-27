@@ -6,6 +6,10 @@ import tempfile
 import traceback
 import re # <--- Add import
 from dotenv import load_dotenv
+from typing import List, Tuple, Dict, Optional
+from dataclasses import dataclass
+from enum import Enum
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,232 +26,388 @@ openai.api_version = os.getenv("OPENAI_API_VERSION", "2024-08-01-preview")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 OPENAI_ENGINE = os.getenv("OPENAI_ENGINE", "gpt-4o") # Specify your deployment name/engine
 
+# Validate configuration
+if not openai.api_key:
+    logger.error("OpenAI API key not configured.")
+    raise ValueError("OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.")
+
 logger.debug(f"Transcript_processor.py - API type: {openai.api_type}")
 logger.debug(f"Transcript_processor.py - API base: {openai.api_base}")
 logger.debug(f"Transcript_processor.py - API version: {openai.api_version}")
 logger.debug(f"Transcript_processor.py - Engine: {OPENAI_ENGINE}")
 logger.debug(f"Transcript_processor.py - API Key Loaded: {bool(openai.api_key)}")
 
-# --- Define System Prompts ---
-PROCESS_RESPONSE_SYSTEM_PROMPT = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts for the purpose of documenting Financial SOX (Sarbanes-Oxley) processes and controls.
-Your task is to answer specific questions based *exclusively* on the provided transcript text. Focus ONLY on information that directly answers the specific question asked, keeping in mind the SOX context.
+# Response types enum for better type safety
+class ResponseType(Enum):
+    NORMAL = "Normal Response"
+    DETAILED_PROCESS = "Detailed Process Response"
 
-Format the answer as a detailed process flow, highlighting:
-1.  **Sequence of Steps:** Clearly outline the order of actions.
-2.  **Individuals Involved:** Identify roles (e.g., preparer, reviewer, approver) and specific actions they perform, relevant to their responsibilities in a SOX process.
-3.  **Systems/Applications/Tools:** Mention any software or tools used at each step (e.g., NetSuite, Concur, ADP, Excel), noting their role in the control environment if specified.
-4.  **Key Controls/Actions:** Describe significant actions, checks, or controls performed within the process. This is crucial for SOX documentation, so be thorough in capturing control activities mentioned.
+# Data class for structured responses
+@dataclass
+class ProcessStep:
+    step_number: int
+    description: str
+    role: Optional[str] = None
+    system: Optional[str] = None
+    control_type: Optional[str] = None
+    frequency: Optional[str] = None
+    evidence: Optional[str] = None
 
-**Crucially:**
-- Only include details that directly address the question from a SOX process perspective.
-- Avoid including information about related processes or topics, even if mentioned nearby in the transcript, if they do not directly answer the *specific question*. Other questions may cover those related details.
-- Be concise. Your primary goal is to answer the question asked using only the directly relevant transcript text.
-- Structure the response clearly. Use bullet points or numbered lists for steps if appropriate.
-- If the transcript explicitly states the information for the question is not available or the process described doesn't apply, state that clearly.
-- Do not invent information or make assumptions beyond the transcript content."""
+# --- Optimized System Prompts with Enhanced Structure ---
+DETAILED_PROCESS_RESPONSE_SYSTEM_PROMPT = """You are a SOX compliance specialist creating comprehensive process documentation.
 
-NORMAL_RESPONSE_SYSTEM_PROMPT = """You are an AI assistant specialized in analyzing financial process walkthrough transcripts, with a focus on supporting Financial SOX (Sarbanes-Oxley) process documentation.
-Your task is to answer specific questions based *exclusively* on the provided transcript text. Please be mindful of information that could be relevant to understanding SOX controls or process steps.
+MANDATORY ULTRA-DETAILED OUTPUT STRUCTURE:
 
-**Instructions:**
-- Provide a direct and concise answer to the question using ONLY the information explicitly stated in the transcript.
-- Do NOT format the answer as a process flow.
-- Do NOT include sections like 'Sequence of Steps', 'Individuals Involved', etc.
-- Focus solely on extracting the information that directly answers the question, paying attention to details pertinent to financial controls if mentioned.
-- If the transcript explicitly states the information for the question is not available, state that clearly.
-- Do not invent information or make assumptions beyond the transcript content."""
+1. **Executive Summary**
+   - Process Name: [Official process name]
+   - Process Owner: [Title and department]
+   - Frequency: [How often the process runs]
+   - Purpose: [Why this process exists from a financial control perspective]
 
-OTHER_TOPICS_SYSTEM_PROMPT = """You are an AI assistant skilled at analyzing financial transcripts for the purpose of enhancing Financial SOX (Sarbanes-Oxley) process documentation.
-Your task is to identify and list any accounting-related topics discussed in the provided 'Transcript' that are NOT already covered by the 'Provided Answers'. These topics should ideally be relevant from a SOX perspective, such as unaddressed controls, risks, or process steps.
+2. **Step-by-Step Process Flow**
+   Step [#]: [Detailed Action Description]
+   - Performer: [Exact job title] from [Department]
+   - Timing: [Specific day/time when performed]
+   - System Used: [Full system name and module]
+   - Inputs Required: [List all inputs/documents needed]
+   - Outputs Generated: [List all outputs created]
+   - Control Activities: [Any checks, reviews, approvals]
+   - Exception Handling: [What happens if issues arise]
+   - Evidence/Documentation: [What gets saved and where]
 
-Output Instructions:
-1.  Carefully compare the 'Transcript' against the 'Provided Answers'.
-2.  For each accounting-related topic or process found in the 'Transcript' but missing from the 'Provided Answers' (especially those pertinent to SOX controls or financial reporting risks):
-    *   Start with a primary bullet point stating the topic.
-    *   Under this, use indented sub-bullets to provide as much detail as possible about this topic directly from the transcript. This includes any mentioned processes, controls, systems involved, roles, or accounting treatment that would be valuable for SOX documentation.
-3.  Crucially, your response should ONLY contain these identified topics and their details, formatted as described.
-4.  Do NOT include introductory phrases, meta-commentary like "The transcript mentions," or "This topic was not covered."
-5.  Exclude all non-accounting related discussions (e.g., personal chats, off-topic remarks).
-6.  If, after careful review, absolutely no additional accounting-related topics relevant to SOX are found that are not in the 'Provided Answers', then and only then, respond with the exact phrase: 'No additional accounting-related topics were identified.'
+3. **Systems Architecture**
+   For each system mentioned:
+   - System: [Full name and version if known]
+   - Purpose in Process: [Specific use]
+   - Access Controls: [Who can access]
+   - Integration Points: [How it connects to other systems]
+   - Data Flow: [What data moves in/out]
 
-Focus on extracting and presenting information valuable for understanding the process from a SOX control standpoint.
-"""
+4. **Control Framework**
+   Control [#]: [Detailed control description]
+   - Control Objective: [What risk it mitigates]
+   - Control Type: [Preventive/Detective/Corrective]
+   - Control Nature: [Manual/Automated/IT-Dependent Manual]
+   - Control Frequency: [How often performed]
+   - Control Owner: [Specific job title]
+   - Control Evidence: [Specific documentation created]
+   - Testing Approach: [How to verify control effectiveness]
+
+5. **Risk Considerations**
+   - Key Financial Risks: [List risks this process addresses]
+   - Gaps Identified: [Any control gaps mentioned]
+   - Dependencies: [Critical dependencies noted]
+
+CRITICAL REQUIREMENTS:
+- Include EVERY detail mentioned, no matter how minor
+- Use "Not specified in transcript" for missing critical information
+- Number everything for easy reference
+- Maintain exact terminology from transcript
+- Include all timing, threshold, and tolerance information
+- Document every person, system, and document mentioned"""
+
+NORMAL_RESPONSE_SYSTEM_PROMPT = """You are a SOX compliance specialist providing focused answers about financial processes.
+
+RESPONSE REQUIREMENTS:
+1. Answer ONLY the specific question asked
+2. Use information EXCLUSIVELY from the transcript
+3. Be direct and factual - no process flow formatting
+4. Include relevant SOX control details if mentioned
+5. State "Not mentioned in the transcript" if information is unavailable
+
+RESPONSE STRUCTURE:
+- First sentence: Direct answer to the question
+- Supporting details: Relevant facts from transcript
+- Control context: Any SOX-relevant details if applicable
+
+Keep responses concise but complete. Extract exact details, not summaries."""
+
+OTHER_TOPICS_SYSTEM_PROMPT = """You are a SOX specialist identifying uncovered accounting topics from transcripts.
+
+OUTPUT FORMAT:
+• [Topic Name]
+  - Detail 1 from transcript
+  - Detail 2 from transcript
+  - System/process/control mentioned
+  - Risk or control implication
+
+RULES:
+1. List ONLY topics NOT covered in provided answers
+2. Focus on SOX-relevant items (controls, risks, processes)
+3. Use bullet points with sub-bullets for details
+4. No introductory text or commentary
+5. If no additional topics exist, output ONLY: "No additional accounting-related topics were identified."
+
+Extract maximum detail for each topic found."""
 
 # --- End Define System Prompts ---
 
-def get_answer_from_transcript(transcript: str, question: str, question_type: str) -> str:
-    """Uses OpenAI to find the answer to a specific question within the transcript,
-       selecting the appropriate prompt based on the question_type.
+# Centralized OpenAI API configuration
+API_CONFIG = {
+    "max_tokens": 3000,  # Increased for more detailed responses
+    "temperature": 0.1,  # Low for consistency
+    "top_p": 0.95,
+    "frequency_penalty": 0,
+    "presence_penalty": 0
+}
 
+def make_openai_request(system_prompt: str, user_prompt: str, max_tokens: Optional[int] = None) -> str:
+    """Centralized OpenAI API request handler with error handling and logging.
+    
     Args:
-        transcript: The full text of the meeting transcript.
-        question: The specific question to answer.
-        question_type: The type of question ('Normal Response' or 'Process Response').
-
+        system_prompt: The system prompt defining the AI's role
+        user_prompt: The user's query/prompt
+        max_tokens: Optional override for max tokens
+        
     Returns:
-        The formatted answer string or an error message.
+        The AI's response text or error message
     """
-    if not openai.api_key:
-        logger.error("OpenAI API key not configured.")
-        return "Error: OpenAI API key not configured."
-
-    # Select the appropriate system prompt based on the question type
-    if question_type == "Normal Response":
-        system_prompt = NORMAL_RESPONSE_SYSTEM_PROMPT
-        user_prompt_format = f"""Based *only* on the following transcript, please provide a direct and concise answer to the question below.
-
-**Transcript:**
-{transcript}
-
-**Question:** {question}
-
-**Direct Answer:**"""
-        logger.debug(f"Using NORMAL response prompt for question: {question[:50]}...")
-    elif question_type == "Process Response":
-        system_prompt = PROCESS_RESPONSE_SYSTEM_PROMPT
-        user_prompt_format = f"""Based *only* on the following transcript, please answer the question below.
-Format your answer as a detailed process flow as described in the system prompt.
-
-**Transcript:**
-{transcript}
-
-**Question:** {question}
-
-**Formatted Answer (Process Flow):**"""
-        logger.debug(f"Using PROCESS response prompt for question: {question[:50]}...")
-    else:
-        logger.warning(f"Unknown question type '{question_type}' for question: {question[:50]}... Defaulting to Process Response.")
-        # Default to process response or handle as an error if preferred
-        system_prompt = PROCESS_RESPONSE_SYSTEM_PROMPT
-        user_prompt_format = f"""Based *only* on the following transcript, please answer the question below.
-Format your answer as a detailed process flow as described in the system prompt.
-
-**Transcript:**
-{transcript}
-
-**Question:** {question}
-
-**Formatted Answer (Process Flow):**"""
-
-    # Format the user prompt
-    user_prompt = user_prompt_format.format(transcript=transcript, question=question)
-
+    config = API_CONFIG.copy()
+    if max_tokens:
+        config["max_tokens"] = max_tokens
+        
     try:
-        logger.debug(f"Sending request to OpenAI for question: {question[:50]}...")
+        logger.debug(f"Making OpenAI request with {len(user_prompt)} character prompt")
         response = openai.ChatCompletion.create(
             engine=OPENAI_ENGINE,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            max_tokens=1000, # Adjust as needed
-            temperature=0.1, # Lower temperature for more factual responses
-            top_p=0.95,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
-        answer = response.choices[0].message['content'].strip()
-        logger.debug(f"Received answer from OpenAI for question: {question[:50]}...")
-        return answer
-    except Exception as e:
-        logger.error(f"Error calling OpenAI API for question '{question[:50]}...': {str(e)}")
-        logger.error(traceback.format_exc())
-        return f"Error processing question: {str(e)}"
-
-# Insert helper function to identify other accounting-related topics
-def get_other_topics(transcript: str, provided_answers: str) -> str:
-    user_prompt = f"""Please review the 'Transcript' and 'Provided Answers' below.
-Identify and detail any additional accounting-related topics from the transcript that are not covered in the answers, following the system prompt's output instructions.
-
-Transcript:
-'''{transcript}'''
-
-Provided Answers:
-'''{provided_answers}'''
-
-Additional Accounting-Related Topics Discovered:"""
-    try:
-        response = openai.ChatCompletion.create(
-            engine=OPENAI_ENGINE,
-            messages=[
-                {"role": "system", "content": OTHER_TOPICS_SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt}
-            ],
-            max_tokens=1000,
-            temperature=0.2,
-            top_p=0.95,
-            frequency_penalty=0,
-            presence_penalty=0
+            **config
         )
         return response.choices[0].message['content'].strip()
     except Exception as e:
-        logger.error(f"Error identifying other topics: {str(e)}")
+        logger.error(f"OpenAI API error: {str(e)}")
         logger.error(traceback.format_exc())
-        return f"Error identifying other topics: {str(e)}"
+        return f"Error processing request: {str(e)}"
 
-def generate_process_flow_doc(transcript_text: str, title: str, questions: list[tuple[str, str]]) -> str:
-    """Processes transcript against questions (with types) and generates a Word document.
-
+def format_process_prompt(transcript: str, question: str, response_type: ResponseType) -> Tuple[str, str]:
+    """Formats prompts based on response type for consistency.
+    
     Args:
-        transcript_text: The full text of the meeting transcript.
-        title: The title for the document (from agenda A1).
-        questions: A list of tuples, where each tuple contains (question_text, question_type).
-                   Example: [('What is limit?', 'Normal Response'), ('Describe process?', 'Process Response')]
-
+        transcript: The meeting transcript
+        question: The question to answer
+        response_type: The type of response needed
+        
     Returns:
-        The file path to the generated Word document in a temporary directory.
+        Tuple of (system_prompt, user_prompt)
     """
-    logger.info("Starting process flow document generation.")
+    prompt_templates = {
+        ResponseType.NORMAL: {
+            "system": NORMAL_RESPONSE_SYSTEM_PROMPT,
+            "user": f"""Transcript:\n{transcript}\n\nQuestion: {question}\n\nAnswer:"""
+        },
+        ResponseType.DETAILED_PROCESS: {
+            "system": DETAILED_PROCESS_RESPONSE_SYSTEM_PROMPT,
+            "user": f"""Transcript:\n{transcript}\n\nQuestion: {question}\n\nDetailed Process Documentation:"""
+        }
+    }
+    
+    template = prompt_templates.get(response_type, prompt_templates[ResponseType.DETAILED_PROCESS])
+    return template["system"], template["user"]
 
+def get_answer_from_transcript(transcript: str, question: str, question_type: str) -> str:
+    """Optimized function to get answers from transcript using appropriate response type.
+    
+    Args:
+        transcript: The full text of the meeting transcript
+        question: The specific question to answer
+        question_type: The type of question as string
+        
+    Returns:
+        The formatted answer string or error message
+    """
+    # Convert string type to enum
+    response_type_map = {
+        "Normal Response": ResponseType.NORMAL,
+        "Process Response": ResponseType.DETAILED_PROCESS,  # Map both to detailed
+        "Detailed Process Response": ResponseType.DETAILED_PROCESS
+    }
+    
+    response_type = response_type_map.get(question_type, ResponseType.DETAILED_PROCESS)
+    logger.info(f"Processing {response_type.value} for question: {question[:50]}...")
+    
+    system_prompt, user_prompt = format_process_prompt(transcript, question, response_type)
+    return make_openai_request(system_prompt, user_prompt)
+
+def clean_formatting(text: str) -> str:
+    """Enhanced text cleaning to ensure consistent formatting.
+    
+    Args:
+        text: Text to clean
+        
+    Returns:
+        Cleaned text with consistent formatting
+    """
+    # Remove markdown formatting
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)  # Bold
+    text = re.sub(r'\*(.*?)\*', r'\1', text)      # Italics
+    text = re.sub(r'^#+\s+', '', text, flags=re.MULTILINE)  # Headers
+    
+    # Standardize bullet points
+    text = re.sub(r'^[-*]\s+', '• ', text, flags=re.MULTILINE)
+    
+    # Clean up excessive whitespace
+    text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)
+    text = re.sub(r' +', ' ', text)  # Multiple spaces
+    
+    # Ensure consistent line endings
+    text = text.strip()
+    
+    return text
+
+def get_other_topics(transcript: str, provided_answers: str) -> str:
+    """Optimized function to identify uncovered topics.
+    
+    Args:
+        transcript: Full transcript text
+        provided_answers: Combined answers already provided
+        
+    Returns:
+        Formatted list of additional topics or standard message
+    """
+    user_prompt = f"""Transcript:\n{transcript}\n\nAlready Covered:\n{provided_answers}\n\nAdditional Topics:"""
+    
+    response = make_openai_request(OTHER_TOPICS_SYSTEM_PROMPT, user_prompt, max_tokens=1000)
+    return clean_formatting(response)
+
+def generate_process_flow_doc(transcript_text: str, title: str, questions: List[Tuple[str, str]]) -> str:
+    """Generates an optimized Word document with consistent formatting.
+    
+    Args:
+        transcript_text: Full meeting transcript
+        title: Document title
+        questions: List of (question_text, question_type) tuples
+        
+    Returns:
+        Path to generated Word document
+        
+    Raises:
+        ValueError: If questions list is empty
+    """
     if not questions:
-        raise ValueError("Question list is empty.")
-
-    logger.info(f"Generating document titled '{title}' with {len(questions)} questions.")
-
+        raise ValueError("Question list cannot be empty")
+        
+    logger.info(f"Generating '{title}' with {len(questions)} questions")
+    
+    # Initialize document with professional styling
     document = Document()
-    document.add_heading(title, level=0)
-    all_answers_combined = ""  # To store all answers for later comparison
-
-    # Process each question from the list
-    for i, (question_text, question_type) in enumerate(questions): # <-- Unpack tuple
-        logger.info(f"Processing question {i+1}/{len(questions)} (Type: {question_type}): {question_text[:100]}...")
-
-        # Add the question to the document
-        document.add_heading(f"Question {i+1}: {question_text}", level=2) # <-- Use question_text
-
-        # Get the formatted answer from AI, passing the type
-        answer = get_answer_from_transcript(transcript_text, question_text, question_type) # <-- Pass type
-
-        # --- Clean the answer (removes markdown common in AI responses) ---
-        cleaned_answer = re.sub(r'^###\s+', '', answer, flags=re.MULTILINE) # Remove ### headings
-        cleaned_answer = re.sub(r'\*\*(.*?)\*\*', r'\1', cleaned_answer) # Remove **bold**
-        cleaned_answer = re.sub(r'^#+\s+', '', cleaned_answer, flags=re.MULTILINE) # Remove other # headings
-        cleaned_answer = re.sub(r'^-\s+', '', cleaned_answer, flags=re.MULTILINE) # Remove leading hyphens if desired (optional)
-        # --- End cleaning ---
-
-        # Add the cleaned answer to the document
-        document.add_paragraph(cleaned_answer)
-        document.add_paragraph() # Add a blank line for spacing
-        all_answers_combined += f"Question: {question_text}\nAnswer: {cleaned_answer}\n\n"
-
-    # --- New Step: Identify Other Topics ---
-    logger.info("Identifying other accounting-related topics not covered by questions.")
-    other_topics = get_other_topics(transcript_text, all_answers_combined)
-
-    document.add_heading("Other Topics Discussed During the Meeting", level=1)
-    document.add_paragraph(other_topics)
-
-    # Save the document to a temporary file
+    
+    # Add title with formatting
+    title_paragraph = document.add_heading(title, level=0)
+    title_paragraph.alignment = 1  # Center alignment
+    
+    # Add metadata
+    document.add_paragraph(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    document.add_paragraph(f"Total Questions: {len(questions)}")
+    document.add_page_break()
+    
+    # Track all answers for other topics analysis
+    all_answers = []
+    
+    # Process each question
+    for i, (question_text, question_type) in enumerate(questions, 1):
+        logger.info(f"Processing Q{i}/{len(questions)} ({question_type}): {question_text[:50]}...")
+        
+        # Add question heading
+        q_heading = document.add_heading(f"Question {i}", level=1)
+        
+        # Add question text with safe style handling
+        try:
+            document.add_paragraph(question_text, style='Intense Quote')
+        except:
+            # Fallback if style doesn't exist
+            p = document.add_paragraph(question_text)
+            p.runs[0].italic = True
+        
+        # Get and clean the answer
+        answer = get_answer_from_transcript(transcript_text, question_text, question_type)
+        cleaned_answer = clean_formatting(answer)
+        
+        # Add answer with appropriate formatting
+        if question_type == "Normal Response":
+            document.add_heading("Response:", level=2)
+            document.add_paragraph(cleaned_answer)
+        else:
+            document.add_heading("Process Documentation:", level=2)
+            # Split answer into sections for better formatting
+            for line in cleaned_answer.split('\n'):
+                if line.strip():
+                    if line.startswith('Step ') or line.startswith('Control '):
+                        try:
+                            p = document.add_paragraph(line, style='List Number')
+                        except:
+                            p = document.add_paragraph(line)
+                            p.runs[0].bold = True
+                    elif line.startswith('•') or line.startswith('-'):
+                        try:
+                            p = document.add_paragraph(line, style='List Bullet')
+                        except:
+                            p = document.add_paragraph(line)
+                    else:
+                        document.add_paragraph(line)
+        
+        # Store answer for other topics analysis
+        all_answers.append(f"Q{i}: {question_text}\nA: {cleaned_answer}")
+        
+        # Add spacing between questions (but not after the last one)
+        if i < len(questions):
+            document.add_paragraph()  # Empty paragraph for spacing
+            document.add_paragraph()  # Another for more visual separation
+    
+    # Identify and add other topics
+    logger.info("Identifying additional topics not covered")
+    combined_answers = "\n\n".join(all_answers)
+    other_topics = get_other_topics(transcript_text, combined_answers)
+    
+    document.add_page_break()  # Keep this page break before Additional Topics section
+    document.add_heading("Additional Topics Identified", level=1)
+    
+    if other_topics == "No additional accounting-related topics were identified.":
+        # Use italic formatting instead of Emphasis style
+        p = document.add_paragraph(other_topics)
+        p.runs[0].italic = True
+    else:
+        # Format other topics with proper structure
+        for line in other_topics.split('\n'):
+            if line.strip():
+                if line.startswith('•') and not line.startswith('  '):
+                    try:
+                        p = document.add_paragraph(line, style='List Bullet')
+                        p.runs[0].bold = True
+                    except:
+                        p = document.add_paragraph(line)
+                        p.runs[0].bold = True
+                elif line.startswith('  -'):
+                    try:
+                        document.add_paragraph(line, style='List Bullet 2')
+                    except:
+                        # Fallback - add as indented paragraph
+                        document.add_paragraph('    ' + line.strip())
+                else:
+                    document.add_paragraph(line)
+    
+    # Save document with error handling
     try:
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".docx")
-        output_path = temp_file.name
-        temp_file.close()
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as temp_file:
+            output_path = temp_file.name
+            
         document.save(output_path)
-        logger.info(f"Successfully generated Word document: {output_path}")
+        logger.info(f"Document generated successfully: {output_path}")
         return output_path
+        
     except Exception as e:
-        logger.error(f"Error saving Word document: {str(e)}")
-        logger.error(traceback.format_exc())
+        logger.error(f"Error saving document: {str(e)}")
         if 'output_path' in locals() and os.path.exists(output_path):
-            os.remove(output_path)
+            try:
+                os.remove(output_path)
+            except:
+                pass
         raise
+
+# Optional: Add document post-processing for even better formatting
+def add_document_styles(document: Document) -> None:
+    """Add custom styles to improve document appearance."""
+    # This could be expanded to add custom styles, headers, footers, etc.
+    pass
