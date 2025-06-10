@@ -13,11 +13,11 @@ export default function Home() {
       color: 'from-orange-500 to-orange-600'
     },
     {
-      name: 'Scoping Doc Builder',
-      description: 'Upload meeting transcripts and agenda files to generate a structured Word document summarizing the discussion based on agenda questions.',
-      path: '/my-upload-app',
-      icon: '📤',
-      color: 'from-emerald-500 to-emerald-600'
+      name: 'Step Writer',
+      description: 'Upload an Excel file with SOX control information (ID, Title, Description, Testing Attributes, Evidence) and generate structured test steps and attributes formatted for GRC tool upload.',
+      path: '/step-writer',
+      icon: '📝',
+      color: 'from-purple-500 to-purple-600'
     },
   ];
 
@@ -30,11 +30,11 @@ export default function Home() {
             <h1 className="text-5xl font-bold text-gray-900 sm:text-6xl md:text-7xl mb-8">
               Welcome to{' '}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                RA Tools Hub
+                SOX Testing Hub
               </span>
             </h1>
             <p className="mt-3 max-w-md mx-auto text-xl text-gray-600 sm:text-2xl md:mt-5 md:max-w-3xl">
-              Your central hub for accessing and managing various AI-powered tools and utilities.
+              Your comprehensive platform for SOX compliance testing, test step creation, and control validation.
             </p>
           </div>
         </div>

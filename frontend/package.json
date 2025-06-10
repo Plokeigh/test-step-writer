@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@babel/runtime": "^7.27.3",
+    "@babel/runtime": "^7.27.6",
     "autoprefixer": "10.4.17",
     "next": "14.1.0",
     "postcss": "8.4.35",
